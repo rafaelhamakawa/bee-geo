@@ -1498,6 +1498,104 @@ textarea {
   font-size: 0.78rem;
 }
 
+.admin-page {
+  max-width: 1500px;
+}
+.admin-page > .metric-grid {
+  margin-bottom: 1rem;
+}
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.5fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.admin-table-card {
+  min-width: 0;
+}
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+.admin-table th,
+.admin-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #edf1ee;
+  text-align: left;
+  vertical-align: middle;
+}
+.admin-table th {
+  color: var(--geo-muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.admin-table td > strong,
+.admin-table td > small {
+  display: block;
+}
+.admin-table td > small {
+  margin-top: 0.18rem;
+  color: var(--geo-muted);
+  font-size: 0.66rem;
+}
+.admin-table tbody tr:hover {
+  background: var(--geo-green-50);
+}
+.role-pill {
+  display: inline-flex;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+.role-pill.user {
+  color: #53655b;
+  background: #edf1ee;
+}
+.role-pill.admin {
+  color: #694901;
+  background: var(--geo-amber-soft);
+}
+.admin-editor {
+  align-self: start;
+  position: sticky;
+  top: 1rem;
+}
+.admin-editor > h2 {
+  margin: -0.45rem 0 1rem;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.admin-editor form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.admin-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+.loading-inline {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  color: var(--geo-muted);
+}
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 @media (max-width: 1100px) {
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
