@@ -14,7 +14,9 @@ O projeto foi criado no [Lovable](https://lovable.dev) e continua editável no p
 - cálculo transparente do percentual de cobertura e da capacidade de colmeias;
 - multiplicadores por bioma/vegetação e fator de segurança de 0,85;
 - modo de demonstração claramente identificado;
-- banco com Row Level Security: cada usuário acessa apenas os próprios dados.
+- banco com Row Level Security: cada usuário acessa apenas os próprios dados;
+- área administrativa protegida para consultar usuários, apiários e análises;
+- edição administrativa de nome, telefone e papel da conta, sem permitir autopromoção pelo navegador.
 
 ## Cálculo
 
@@ -41,26 +43,61 @@ Preencha no ambiente de implantação:
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_ANON_KEY`
 - `VITE_GOOGLE_MAPS_API_KEY`
-- `VITE_GEO_ANALYSIS_URL` quando o serviço MapBiomas/Earth Engine estiver publicado
+- `VITE_GEO_ANALYSIS_URL` apontando para `https://<PROJECT_REF>.supabase.co/functions/v1/analyze-pasture`
 - `VITE_ENABLE_DEMO_MODE=false` para desabilitar a demonstração em produção
 
 Não coloque `service_role`, chave privada do Earth Engine nem qualquer segredo com prefixo `VITE_`: variáveis Vite são públicas no navegador.
 
 ## Banco de dados
 
-Aplique a migração em `supabase/migrations/20260819000000_geoapis_schema.sql` pelo Supabase CLI ou pelo fluxo de migrations do Lovable. Ela cria:
+Aplique, na ordem, as migrations em `supabase/migrations` pelo Supabase CLI, SQL Editor ou fluxo de migrations do Lovable. Elas criam:
 
-- `profiles`
-- `apiaries`
-- `analyses`
-- `pasture_fragments`
-- políticas RLS, relacionamentos e validações
+- `profiles`, `apiaries`, `analyses` e `pasture_fragments`;
+- políticas RLS, relacionamentos e validações;
+- papéis `user` e `admin`;
+- RPCs administrativas que validam o papel no servidor;
+- proteção para impedir que um usuário comum altere o próprio papel;
+- proteção para impedir a remoção do último administrador.
+
+Depois de cadastrar e confirmar a primeira conta administrativa, execute uma vez no SQL Editor:
+
+```sql
+update public.profiles
+set role = 'admin'
+where id = (
+  select id from auth.users where email = '<EMAIL_DO_ADMIN>'
+);
+```
+
+A partir do próximo login, a opção **Admin** aparecerá no menu. O painel permite consultar usuários, apiários e totais de análises, além de editar nome, telefone e papel das contas.
 
 ## Análise geoespacial
 
-O Google Maps é usado somente para exibir o mapa, selecionar a localização e desenhar o círculo. A classificação da vegetação deve ser feita em serviço separado com dados de cobertura do solo, preferencialmente MapBiomas no Google Earth Engine.
+O Google Maps é usado somente para exibir o mapa, selecionar a localização e desenhar o círculo. A classificação é executada pela Edge Function `supabase/functions/analyze-pasture` com:
 
-Enquanto esse serviço não estiver conectado, o aplicativo oferece delimitação manual dos fragmentos e mantém todo o cálculo funcional. Monoculturas floríferas e Acácia Mangium sempre devem ser confirmadas pelo usuário, pois não podem ser determinadas apenas pelo bioma.
+- MapBiomas Cobertura e Uso 10 m — Collection 3;
+- banda padrão `classification_2024`;
+- classes naturais 3, 4, 5, 6 e 49;
+- divisão das áreas em fragmentos vetoriais;
+- cálculo da área de cada fragmento em hectares;
+- identificação do bioma pela camada auxiliar do MapBiomas;
+- remoção de ruídos menores que 0,05 ha.
+
+O asset, banda, ano, resolução, área mínima e camada de biomas permanecem configuráveis por secrets. Monoculturas floríferas e Acácia Mangium sempre exigem confirmação do usuário.
+
+### Publicação da função
+
+O projeto Google Cloud precisa estar registrado no Earth Engine e com a API ativada. Crie uma conta de serviço e armazene o JSON privado **somente** nos secrets da função.
+
+```sh
+supabase secrets set EARTH_ENGINE_PROJECT_ID=<GOOGLE_CLOUD_PROJECT_ID>
+supabase secrets set EARTH_ENGINE_PRIVATE_KEY_JSON='<JSON_DA_CONTA_DE_SERVICO>'
+supabase functions deploy analyze-pasture
+```
+
+Use `supabase/functions/.env.example` como referência. Nunca envie a chave privada ao GitHub, ao frontend ou ao chat do Lovable.
+
+Enquanto a função não estiver publicada, o aplicativo mantém a delimitação manual e todos os cálculos funcionais.
 
 ## Verificação
 
