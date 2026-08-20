@@ -24,6 +24,7 @@ import {
   Trash2,
   Trees,
   UserRound,
+  UsersRound,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 
@@ -46,7 +47,32 @@ import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 export const Route = createFileRoute("/")({ component: GeoApisApp });
 
-type View = "dashboard" | "apiaries" | "new-apiary" | "analysis" | "profile";
+type View = "dashboard" | "apiaries" | "new-apiary" | "analysis" | "profile" | "admin";
+type UserRole = "user" | "admin";
+
+type AdminUser = {
+  id: string;
+  email: string;
+  fullName: string;
+  phone: string;
+  role: UserRole;
+  createdAt: string;
+  apiaryCount: number;
+  analysisCount: number;
+};
+
+type AdminApiary = {
+  id: string;
+  userEmail: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  createdAt: string;
+  analysisCount: number;
+  recommendedHives: number;
+};
+
 const DEFAULT_LOCATION = { latitude: -15.77972, longitude: -47.92972 };
 
 const demoAnalysis = calculateAnalysis({
@@ -94,6 +120,7 @@ function GeoApisApp() {
   const [authLoading, setAuthLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [demoMode, setDemoMode] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>("user");
   const [view, setView] = useState<View>("dashboard");
   const [apiaries, setApiaries] = useState<Apiary[]>([]);
   const [selectedApiaryId, setSelectedApiaryId] = useState<string>();
@@ -115,6 +142,36 @@ function GeoApisApp() {
     });
     return () => data.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (!user || !supabase || demoMode) {
+      setUserRole("user");
+      return;
+    }
+
+    let cancelled = false;
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          setUserRole("user");
+          return;
+        }
+        setUserRole(data?.role === "admin" ? "admin" : "user");
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [demoMode, user]);
+
+  useEffect(() => {
+    if (view === "admin" && userRole !== "admin") setView("dashboard");
+  }, [userRole, view]);
 
   useEffect(() => {
     if (demoMode) {
@@ -189,6 +246,7 @@ function GeoApisApp() {
 
   async function handleSignOut() {
     setDemoMode(false);
+    setUserRole("user");
     setUser(null);
     setApiaries([]);
     setView("dashboard");
@@ -297,6 +355,7 @@ function GeoApisApp() {
       view={view}
       onNavigate={setView}
       onSignOut={handleSignOut}
+      isAdmin={userRole === "admin"}
       userName={
         demoMode ? "Rafael" : user?.user_metadata?.["full_name"] || user?.email || "Apicultor"
       }
@@ -350,6 +409,7 @@ function GeoApisApp() {
           onAction={() => setView("new-apiary")}
         />
       )}
+      {view === "admin" && userRole === "admin" && <AdminScreen />}
       {view === "profile" && (
         <ProfileScreen
           user={user}
@@ -546,19 +606,24 @@ function AppShell({
   onNavigate,
   onSignOut,
   userName,
+  isAdmin,
 }: {
   children: ReactNode;
   view: View;
   onNavigate: (view: View) => void;
   onSignOut: () => void;
   userName: string;
+  isAdmin: boolean;
 }) {
-  const navItems: { view: View; label: string; icon: typeof LayoutDashboard }[] = [
+  const baseNavItems: { view: View; label: string; icon: typeof LayoutDashboard }[] = [
     { view: "dashboard", label: "Início", icon: LayoutDashboard },
     { view: "apiaries", label: "Apiários", icon: Bee },
     { view: "analysis", label: "Analisar", icon: MapPinned },
     { view: "profile", label: "Perfil", icon: UserRound },
   ];
+  const navItems = isAdmin
+    ? [...baseNavItems, { view: "admin" as const, label: "Admin", icon: UsersRound }]
+    : baseNavItems;
   return (
     <div className="app-layout">
       <aside className="sidebar">
@@ -578,7 +643,7 @@ function AppShell({
           <span className="avatar">{userName.slice(0, 1).toUpperCase()}</span>
           <span>
             <strong>{userName}</strong>
-            <small>Conta do apicultor</small>
+            <small>{isAdmin ? "Administrador" : "Conta do apicultor"}</small>
           </span>
           <button onClick={onSignOut} aria-label="Sair">
             <LogOut size={18} />
@@ -586,7 +651,11 @@ function AppShell({
         </div>
       </aside>
       <main className="app-main">{children}</main>
-      <nav className="bottom-nav" aria-label="Navegação inferior">
+      <nav
+        className="bottom-nav"
+        aria-label="Navegação inferior"
+        style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}
+      >
         {navItems.map((item) => (
           <button
             key={item.view}
@@ -1405,6 +1474,290 @@ function ResultView({
           {saving ? <LoaderCircle className="spin" size={18} /> : <Save size={18} />} Salvar análise
         </button>
       </div>
+    </div>
+  );
+}
+
+
+function AdminScreen() {
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [apiaries, setAdminApiaries] = useState<AdminApiary[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string>();
+  const [form, setForm] = useState({ fullName: "", phone: "", role: "user" as UserRole });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string>();
+
+  useEffect(() => {
+    if (!supabase) {
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    async function loadAdminData() {
+      const [usersResponse, apiariesResponse] = await Promise.all([
+        supabase!.rpc("admin_list_users"),
+        supabase!.rpc("admin_list_apiaries"),
+      ]);
+
+      if (cancelled) return;
+      if (usersResponse.error || apiariesResponse.error) {
+        setMessage(
+          usersResponse.error?.message ??
+            apiariesResponse.error?.message ??
+            "Não foi possível carregar os dados administrativos.",
+        );
+        setLoading(false);
+        return;
+      }
+
+      setUsers(
+        (usersResponse.data ?? []).map((row) => ({
+          id: String(row.id),
+          email: String(row.email ?? ""),
+          fullName: String(row.full_name ?? ""),
+          phone: String(row.phone ?? ""),
+          role: row.role === "admin" ? "admin" : "user",
+          createdAt: String(row.created_at),
+          apiaryCount: Number(row.apiary_count ?? 0),
+          analysisCount: Number(row.analysis_count ?? 0),
+        })),
+      );
+      setAdminApiaries(
+        (apiariesResponse.data ?? []).map((row) => ({
+          id: String(row.id),
+          userEmail: String(row.user_email ?? ""),
+          name: String(row.name ?? ""),
+          address: String(row.address ?? "Localização por coordenadas"),
+          latitude: Number(row.latitude),
+          longitude: Number(row.longitude),
+          createdAt: String(row.created_at),
+          analysisCount: Number(row.analysis_count ?? 0),
+          recommendedHives: Number(row.recommended_hives ?? 0),
+        })),
+      );
+      setLoading(false);
+    }
+
+    void loadAdminData();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function editUser(user: AdminUser) {
+    setSelectedUserId(user.id);
+    setForm({ fullName: user.fullName, phone: user.phone, role: user.role });
+    setMessage(undefined);
+  }
+
+  async function saveUser(event: FormEvent) {
+    event.preventDefault();
+    if (!supabase || !selectedUserId) return;
+    setSaving(true);
+    setMessage(undefined);
+
+    const { error } = await supabase.rpc("admin_update_profile", {
+      target_user_id: selectedUserId,
+      new_full_name: form.fullName,
+      new_phone: form.phone,
+      new_role: form.role,
+    });
+
+    setSaving(false);
+    if (error) {
+      setMessage(error.message);
+      return;
+    }
+
+    setUsers((current) =>
+      current.map((item) =>
+        item.id === selectedUserId
+          ? { ...item, fullName: form.fullName.trim(), phone: form.phone.trim(), role: form.role }
+          : item,
+      ),
+    );
+    setSelectedUserId(undefined);
+    setMessage("Perfil atualizado com segurança.");
+  }
+
+  const selectedUser = users.find((item) => item.id === selectedUserId);
+  const totalAnalyses = users.reduce((total, item) => total + item.analysisCount, 0);
+
+  return (
+    <div className="page-content admin-page">
+      <header className="page-header split">
+        <div>
+          <span className="eyebrow">Área restrita</span>
+          <h1>Administração do GeoApis</h1>
+          <p>Consulte usuários, apiários e análises. As alterações ficam protegidas pelo Supabase.</p>
+        </div>
+        <span className="status-pill">
+          <ShieldCheck size={15} /> Administrador
+        </span>
+      </header>
+
+      <section className="metric-grid">
+        <MetricCard icon={UsersRound} label="Usuários" value={String(users.length)} tone="green" />
+        <MetricCard icon={Bee} label="Apiários cadastrados" value={String(apiaries.length)} tone="amber" />
+        <MetricCard icon={BarChart3} label="Análises salvas" value={String(totalAnalyses)} tone="green" />
+        <MetricCard
+          icon={ShieldCheck}
+          label="Administradores"
+          value={String(users.filter((item) => item.role === "admin").length)}
+          tone="amber"
+        />
+      </section>
+
+      {message && (
+        <div className="form-message">
+          <Info size={17} /> {message}
+        </div>
+      )}
+
+      <section className="admin-grid">
+        <article className="content-card admin-table-card">
+          <div className="section-heading">
+            <div>
+              <span className="eyebrow">Contas</span>
+              <h2>Usuários cadastrados</h2>
+            </div>
+          </div>
+          {loading ? (
+            <div className="loading-inline">
+              <LoaderCircle className="spin" size={22} /> Carregando usuários...
+            </div>
+          ) : (
+            <div className="table-scroll">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Usuário</th>
+                    <th>Papel</th>
+                    <th>Apiários</th>
+                    <th>Análises</th>
+                    <th />
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <strong>{item.fullName || "Nome não informado"}</strong>
+                        <small>{item.email}</small>
+                      </td>
+                      <td>
+                        <span className={`role-pill ${item.role}`}>
+                          {item.role === "admin" ? "Administrador" : "Usuário"}
+                        </span>
+                      </td>
+                      <td>{item.apiaryCount}</td>
+                      <td>{item.analysisCount}</td>
+                      <td>
+                        <button className="button secondary compact" onClick={() => editUser(item)}>
+                          Editar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </article>
+
+        <aside className="content-card admin-editor">
+          <span className="eyebrow">Edição protegida</span>
+          <h2>{selectedUser ? selectedUser.email : "Selecione um usuário"}</h2>
+          {!selectedUser ? (
+            <p className="muted">Use o botão “Editar” para alterar nome, telefone ou papel da conta.</p>
+          ) : (
+            <form onSubmit={saveUser}>
+              <label>
+                Nome completo
+                <input
+                  value={form.fullName}
+                  onChange={(event) => setForm((current) => ({ ...current, fullName: event.target.value }))}
+                />
+              </label>
+              <label>
+                Telefone
+                <input
+                  value={form.phone}
+                  onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
+                />
+              </label>
+              <label>
+                Papel da conta
+                <select
+                  value={form.role}
+                  onChange={(event) =>
+                    setForm((current) => ({ ...current, role: event.target.value as UserRole }))
+                  }
+                >
+                  <option value="user">Usuário</option>
+                  <option value="admin">Administrador</option>
+                </select>
+              </label>
+              <div className="admin-editor-actions">
+                <button
+                  type="button"
+                  className="button secondary"
+                  onClick={() => setSelectedUserId(undefined)}
+                >
+                  Cancelar
+                </button>
+                <button className="button primary" disabled={saving}>
+                  {saving ? <LoaderCircle className="spin" size={18} /> : <Save size={18} />}
+                  Salvar
+                </button>
+              </div>
+            </form>
+          )}
+        </aside>
+      </section>
+
+      <section className="content-card admin-table-card">
+        <div className="section-heading">
+          <div>
+            <span className="eyebrow">Dados dos apiários</span>
+            <h2>Visão geral da plataforma</h2>
+          </div>
+        </div>
+        <div className="table-scroll">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Apiário</th>
+                <th>Responsável</th>
+                <th>Localização</th>
+                <th>Análises</th>
+                <th>Colmeias estimadas</th>
+              </tr>
+            </thead>
+            <tbody>
+              {apiaries.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <strong>{item.name}</strong>
+                    <small>{formatDate(item.createdAt)}</small>
+                  </td>
+                  <td>{item.userEmail}</td>
+                  <td>
+                    <strong>{item.address}</strong>
+                    <small>
+                      {item.latitude.toFixed(5)}, {item.longitude.toFixed(5)}
+                    </small>
+                  </td>
+                  <td>{item.analysisCount}</td>
+                  <td>{item.recommendedHives}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   );
 }
