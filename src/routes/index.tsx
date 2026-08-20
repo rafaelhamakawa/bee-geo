@@ -219,7 +219,7 @@ function GeoApisApp() {
         });
       }
       setApiaries(
-        (apiaryResponse.data ?? []).map((row: Record<string, unknown>) => ({
+        (apiaryResponse.data ?? []).map((row) => ({
           id: row.id as string,
           name: row.name as string,
           address: (row.address as string | null) ?? "Localização por coordenadas",
@@ -1514,7 +1514,18 @@ function AdminScreen() {
       }
 
       setUsers(
-        (usersResponse.data ?? []).map((row: Record<string, unknown>) => ({
+        (
+          (usersResponse.data ?? []) as Array<{
+            id: unknown;
+            email: unknown;
+            full_name: unknown;
+            phone: unknown;
+            role: unknown;
+            created_at: unknown;
+            apiary_count: unknown;
+            analysis_count: unknown;
+          }>
+        ).map((row) => ({
           id: String(row.id),
           email: String(row.email ?? ""),
           fullName: String(row.full_name ?? ""),
@@ -1526,7 +1537,19 @@ function AdminScreen() {
         })),
       );
       setAdminApiaries(
-        (apiariesResponse.data ?? []).map((row: Record<string, unknown>) => ({
+        (
+          (apiariesResponse.data ?? []) as Array<{
+            id: unknown;
+            user_email: unknown;
+            name: unknown;
+            address: unknown;
+            latitude: unknown;
+            longitude: unknown;
+            created_at: unknown;
+            analysis_count: unknown;
+            recommended_hives: unknown;
+          }>
+        ).map((row) => ({
           id: String(row.id),
           userEmail: String(row.user_email ?? ""),
           name: String(row.name ?? ""),
