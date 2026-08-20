@@ -36,6 +36,7 @@ import {
   SAFETY_FACTOR,
   calculateAnalysis,
   categoryDetails,
+  formatDate,
   formatNumber,
   vegetationCategories,
   type AnalysisResult,
@@ -218,7 +219,7 @@ function GeoApisApp() {
         });
       }
       setApiaries(
-        (apiaryResponse.data ?? []).map((row) => ({
+        (apiaryResponse.data ?? []).map((row: Record<string, unknown>) => ({
           id: row.id as string,
           name: row.name as string,
           address: (row.address as string | null) ?? "Localização por coordenadas",
@@ -1513,7 +1514,7 @@ function AdminScreen() {
       }
 
       setUsers(
-        (usersResponse.data ?? []).map((row) => ({
+        (usersResponse.data ?? []).map((row: Record<string, unknown>) => ({
           id: String(row.id),
           email: String(row.email ?? ""),
           fullName: String(row.full_name ?? ""),
@@ -1525,7 +1526,7 @@ function AdminScreen() {
         })),
       );
       setAdminApiaries(
-        (apiariesResponse.data ?? []).map((row) => ({
+        (apiariesResponse.data ?? []).map((row: Record<string, unknown>) => ({
           id: String(row.id),
           userEmail: String(row.user_email ?? ""),
           name: String(row.name ?? ""),
@@ -1599,11 +1600,21 @@ function AdminScreen() {
       </header>
 
       <section className="metric-grid">
-        <MetricCard icon={UsersRound} label="Usuários" value={String(users.length)} tone="green" />
-        <MetricCard icon={Bee} label="Apiários cadastrados" value={String(apiaries.length)} tone="amber" />
-        <MetricCard icon={BarChart3} label="Análises salvas" value={String(totalAnalyses)} tone="green" />
+        <MetricCard icon={<UsersRound />} label="Usuários" value={String(users.length)} tone="green" />
         <MetricCard
-          icon={ShieldCheck}
+          icon={<Bee />}
+          label="Apiários cadastrados"
+          value={String(apiaries.length)}
+          tone="amber"
+        />
+        <MetricCard
+          icon={<BarChart3 />}
+          label="Análises salvas"
+          value={String(totalAnalyses)}
+          tone="green"
+        />
+        <MetricCard
+          icon={<ShieldCheck />}
           label="Administradores"
           value={String(users.filter((item) => item.role === "admin").length)}
           tone="amber"
