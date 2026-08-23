@@ -42,6 +42,9 @@ export default function ApiaryMap({
   onMove,
   showCircle = true,
   className = "h-72 w-full rounded-2xl",
+  drawing = false,
+  drawPoints,
+  onDrawPoint,
 }: {
   latitude: number;
   longitude: number;
@@ -49,11 +52,19 @@ export default function ApiaryMap({
   onMove?: (lat: number, lng: number) => void;
   showCircle?: boolean;
   className?: string;
+  drawing?: boolean;
+  drawPoints?: [number, number][];
+  onDrawPoint?: (lng: number, lat: number) => void;
 }) {
   const container = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
+  const drawingRef = useRef(drawing);
+  const onDrawPointRef = useRef(onDrawPoint);
+  drawingRef.current = drawing;
+  onDrawPointRef.current = onDrawPoint;
   const [failed, setFailed] = useState(false);
+
 
   useEffect(() => {
     if (!container.current || mapRef.current) return;
@@ -86,21 +97,50 @@ export default function ApiaryMap({
             paint: { "line-color": "#F5A000", "line-width": 2 },
           });
         }
+        map.addSource("draw", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "draw-fill",
+          type: "fill",
+          source: "draw",
+          paint: { "fill-color": "#0B6337", "fill-opacity": 0.35 },
+        });
+        map.addLayer({
+          id: "draw-line",
+          type: "line",
+          source: "draw",
+          paint: { "line-color": "#0B6337", "line-width": 2 },
+        });
+        map.addLayer({
+          id: "draw-points",
+          type: "circle",
+          source: "draw",
+          filter: ["==", "$type", "Point"],
+          paint: { "circle-radius": 4, "circle-color": "#F5A000" },
+        });
       });
 
       const marker = new maplibregl.Marker({ color: "#0B6337", draggable })
         .setLngLat([longitude, latitude])
         .addTo(map);
-      if (draggable) {
-        marker.on("dragend", () => {
-          const { lat, lng } = marker.getLngLat();
-          onMove?.(lat, lng);
-        });
-        map.on("click", (e: maplibregl.MapMouseEvent) => {
+      marker.on("dragend", () => {
+        if (!draggable) return;
+        const { lat, lng } = marker.getLngLat();
+        onMove?.(lat, lng);
+      });
+      map.on("click", (e: maplibregl.MapMouseEvent) => {
+        if (drawingRef.current) {
+          onDrawPointRef.current?.(e.lngLat.lng, e.lngLat.lat);
+          return;
+        }
+        if (draggable) {
           marker.setLngLat(e.lngLat);
           onMove?.(e.lngLat.lat, e.lngLat.lng);
-        });
-      }
+        }
+      });
+
       markerRef.current = marker;
       mapRef.current = map;
     } catch {
@@ -121,6 +161,43 @@ export default function ApiaryMap({
     const src = map.getSource("radius") as maplibregl.GeoJSONSource | undefined;
     src?.setData(circleGeoJSON(latitude, longitude, FLIGHT_RADIUS_M));
   }, [latitude, longitude]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      const src = map.getSource("draw") as maplibregl.GeoJSONSource | undefined;
+      if (!src) return;
+      const pts = drawPoints ?? [];
+      const features: any[] = pts.map((p) => ({
+        type: "Feature",
+        properties: {},
+        geometry: { type: "Point", coordinates: p },
+      }));
+      if (pts.length >= 3) {
+        features.push({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "Polygon", coordinates: [[...pts, pts[0]!]] },
+        });
+      } else if (pts.length === 2) {
+        features.push({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: pts },
+        });
+      }
+      src.setData({ type: "FeatureCollection", features });
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("load", apply);
+  }, [drawPoints]);
+
+  useEffect(() => {
+    const canvas = mapRef.current?.getCanvas();
+    if (canvas) canvas.style.cursor = drawing ? "crosshair" : "";
+  }, [drawing]);
+
 
   if (failed) {
     return (

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { lazy, Suspense, useMemo, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Plus, Trash2, Loader2, Sparkles, PenLine } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, StepIndicator } from "@/components/app-shell";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,8 +28,10 @@ import {
   CIRCLE_AREA_HA,
   type PatchInput,
 } from "@/lib/geoapis";
+import { haToKm2, polygonAreaHa, scanVegetation, type VegetationScan } from "@/lib/vegetation-scan";
 
 const ApiaryMap = lazy(() => import("@/components/apiary-map"));
+
 
 export const Route = createFileRoute("/apiarios/$id/analise")({
   ssr: false,
@@ -70,6 +72,12 @@ function AnalysisPage() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [scan, setScan] = useState<VegetationScan | null>(null);
+  const [scanStatus, setScanStatus] = useState<"idle" | "running" | "done" | "failed">("idle");
+  const [drawing, setDrawing] = useState(false);
+  const [drawPoints, setDrawPoints] = useState<[number, number][]>([]);
+  const scanStarted = useRef(false);
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["apiary-analysis", id, user?.id],
@@ -95,6 +103,84 @@ function AnalysisPage() {
   function update(rowId: string, patch: Partial<Row>) {
     setRows(list.map((r) => (r.id === rowId ? { ...r, ...patch } : r)));
   }
+
+  async function runScan() {
+    if (apiary?.latitude == null || apiary?.longitude == null) return;
+    setScanStatus("running");
+    try {
+      const result = await scanVegetation(apiary.latitude, apiary.longitude);
+      setScan(result);
+      const detected: Row[] = [];
+      if (result.darkGreenHa > 0.01)
+        detected.push({
+          id: crypto.randomUUID(),
+          patch_number: 1,
+          name: "Vegetação verde escuro (detectada)",
+          vegetation_type: "Formação florestal",
+          land_cover_type: "Formação florestal",
+          area_ha: Number(result.darkGreenHa.toFixed(2)),
+          hive_multiplier: baseMultiplier,
+          is_approved: true,
+        });
+      if (result.lightGreenHa > 0.01)
+        detected.push({
+          id: crypto.randomUUID(),
+          patch_number: detected.length + 1,
+          name: "Vegetação verde claro (detectada)",
+          vegetation_type: "Formação campestre",
+          land_cover_type: "Formação campestre",
+          area_ha: Number(result.lightGreenHa.toFixed(2)),
+          hive_multiplier: baseMultiplier,
+          is_approved: true,
+        });
+      if (detected.length === 0) {
+        setScanStatus("failed");
+        toast.error("Nenhuma área verde detectada. Delimite manualmente.");
+        return;
+      }
+      setRows(detected);
+      setScanStatus("done");
+      toast.success("Vegetação detectada automaticamente pelo satélite.");
+    } catch {
+      setScanStatus("failed");
+      toast.error("Não foi possível analisar a imagem. Delimite as áreas manualmente.");
+    }
+  }
+
+  useEffect(() => {
+    if (scanStarted.current) return;
+    if (apiary?.latitude == null || apiary?.longitude == null) return;
+    scanStarted.current = true;
+    void runScan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiary?.latitude, apiary?.longitude]);
+
+  function finishPolygon() {
+    if (drawPoints.length < 3) {
+      toast.error("Marque ao menos 3 pontos no mapa.");
+      return;
+    }
+    const area = polygonAreaHa(drawPoints);
+    const base = rows ?? [];
+    setRows([
+      ...base,
+      {
+        id: crypto.randomUUID(),
+        patch_number: base.length + 1,
+        name: `Área delimitada ${base.length + 1}`,
+        vegetation_type: "Vegetação nativa",
+        land_cover_type: "Vegetação nativa",
+        area_ha: Number(area.toFixed(2)),
+        hive_multiplier: baseMultiplier,
+        is_approved: true,
+      },
+    ]);
+    setDrawPoints([]);
+    setDrawing(false);
+    toast.success(`Área delimitada: ${fmtHa(area)} ha`);
+  }
+
+
 
   async function calculate() {
     if (!user || !apiary) return;
@@ -194,21 +280,108 @@ function AnalysisPage() {
             latitude={apiary.latitude}
             longitude={apiary.longitude}
             className="h-64 w-full rounded-2xl"
+            drawing={drawing}
+            drawPoints={drawPoints}
+            onDrawPoint={(lng, lat) => setDrawPoints((p) => [...p, [lng, lat]])}
           />
         </Suspense>
 
         <div className="rounded-2xl bg-card p-4 text-sm shadow-sm">
           <p className="font-semibold text-primary">Área de referência</p>
           <p className="text-muted-foreground">
-            Círculo de 1,5 km = 706,86 ha · 1% da área = 7,0686 ha
+            Círculo de 1,5 km = 706,86 ha (7,0686 km²) · 1% da área = 7,0686 ha
           </p>
           <p className="mt-1 text-muted-foreground">
             Bioma: {apiary.biome ?? "não informado"} · multiplicador base {baseMultiplier}
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Serviço automático de detecção ainda não configurado — informe os fragmentos manualmente.
-          </p>
+
+          {scanStatus === "running" ? (
+            <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Analisando a imagem de satélite dentro do
+              raio de 1,5 km…
+            </p>
+          ) : null}
+
+          {scanStatus === "done" && scan ? (
+            <div className="mt-3 space-y-1 rounded-xl bg-secondary/40 p-3 text-xs">
+              <p className="font-semibold text-primary">Detecção automática por cor</p>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Verde escuro (arbóreo)</span>
+                <span>{fmtHa(scan.darkGreenHa)} ha</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Verde claro (herbáceo)</span>
+                <span>{fmtHa(scan.lightGreenHa)} ha</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Água (excluída)</span>
+                <span>{fmtHa(scan.waterHa)} ha</span>
+              </div>
+              <div className="flex justify-between font-semibold text-primary">
+                <span>Pasto apícola detectado</span>
+                <span>
+                  {fmtHa(haToKm2(scan.totalVegetationHa))} km² · {fmtHa(scan.totalVegetationHa)} ha
+                </span>
+              </div>
+              <p className="pt-1 text-muted-foreground">
+                Ajuste os fragmentos abaixo se necessário.
+              </p>
+            </div>
+          ) : null}
+
+          {scanStatus === "failed" ? (
+            <p className="mt-3 text-xs text-destructive">
+              Não foi possível delimitar automaticamente. Delimite as áreas de vegetação no mapa ou
+              informe os fragmentos manualmente.
+            </p>
+          ) : null}
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              className="h-10"
+              onClick={runScan}
+              disabled={scanStatus === "running"}
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              {scanStatus === "running" ? "Detectando…" : "Detectar novamente"}
+            </Button>
+            <Button
+              variant={drawing ? "default" : "outline"}
+              className="h-10"
+              onClick={() => {
+                setDrawing((d) => !d);
+                setDrawPoints([]);
+              }}
+            >
+              <PenLine className="mr-2 h-4 w-4" />
+              {drawing ? "Cancelar delimitação" : "Delimitar no mapa"}
+            </Button>
+          </div>
+
+          {drawing ? (
+            <div className="mt-3 rounded-xl bg-secondary/40 p-3 text-xs">
+              <p className="text-muted-foreground">
+                Toque no mapa para marcar os vértices da área de vegetação ({drawPoints.length}{" "}
+                pontos).
+              </p>
+              {drawPoints.length >= 3 ? (
+                <p className="mt-1 font-semibold text-primary">
+                  Área atual: {fmtHa(polygonAreaHa(drawPoints))} ha
+                </p>
+              ) : null}
+              <div className="mt-2 flex gap-2">
+                <Button className="h-9" onClick={finishPolygon}>
+                  Concluir área
+                </Button>
+                <Button variant="ghost" className="h-9" onClick={() => setDrawPoints([])}>
+                  Limpar pontos
+                </Button>
+              </div>
+            </div>
+          ) : null}
         </div>
+
 
         <div className="space-y-3">
           {list.map((r, idx) => (
@@ -303,9 +476,11 @@ function AnalysisPage() {
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Área total de pasto</span>
             <span className="font-semibold text-primary">
-              {fmtHa(totals.total_forage_area_ha)} ha
+              {fmtHa(totals.total_forage_area_ha)} ha ·{" "}
+              {fmtHa(haToKm2(totals.total_forage_area_ha))} km²
             </span>
           </div>
+
           <div className="mt-1 flex justify-between text-sm">
             <span className="text-muted-foreground">Percentual do círculo</span>
             <span className="font-semibold text-primary">
