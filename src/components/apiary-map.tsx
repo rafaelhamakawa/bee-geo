@@ -162,6 +162,43 @@ export default function ApiaryMap({
     src?.setData(circleGeoJSON(latitude, longitude, FLIGHT_RADIUS_M));
   }, [latitude, longitude]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      const src = map.getSource("draw") as maplibregl.GeoJSONSource | undefined;
+      if (!src) return;
+      const pts = drawPoints ?? [];
+      const features: GeoJSON.Feature[] = pts.map((p) => ({
+        type: "Feature",
+        properties: {},
+        geometry: { type: "Point", coordinates: p },
+      }));
+      if (pts.length >= 3) {
+        features.push({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "Polygon", coordinates: [[...pts, pts[0]!]] },
+        });
+      } else if (pts.length === 2) {
+        features.push({
+          type: "Feature",
+          properties: {},
+          geometry: { type: "LineString", coordinates: pts },
+        });
+      }
+      src.setData({ type: "FeatureCollection", features });
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("load", apply);
+  }, [drawPoints]);
+
+  useEffect(() => {
+    const canvas = mapRef.current?.getCanvas();
+    if (canvas) canvas.style.cursor = drawing ? "crosshair" : "";
+  }, [drawing]);
+
+
   if (failed) {
     return (
       <div
