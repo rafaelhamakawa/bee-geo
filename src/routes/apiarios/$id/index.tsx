@@ -100,7 +100,7 @@ function ApiaryDetailPage() {
       .update({ current_hives: current })
       .eq("id", id);
     setSavingHives(false);
-    if (error) return toast.error("Erro ao salvar as colmeias.");
+    if (error) { toast.error("Erro ao salvar as colmeias."); return; }
     toast.success("Colmeias atualizadas.");
     qc.invalidateQueries({ queryKey: ["apiary", id] });
     qc.invalidateQueries({ queryKey: ["dashboard"] });
@@ -108,7 +108,7 @@ function ApiaryDetailPage() {
 
   async function remove() {
     const { error } = await supabase.from("apiaries").delete().eq("id", id);
-    if (error) return toast.error("Não foi possível excluir o apiário.");
+    if (error) { toast.error("Não foi possível excluir o apiário."); return; }
     toast.success("Apiário excluído.");
     navigate({ to: "/apiarios", replace: true });
   }

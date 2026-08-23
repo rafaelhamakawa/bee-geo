@@ -50,7 +50,7 @@ function ProfilePage() {
   useEffect(() => {
     if (form) return;
     setForm({
-      full_name: data?.full_name ?? ((user?.user_metadata?.full_name as string) || ""),
+      full_name: data?.full_name ?? ((user?.user_metadata?.['full_name'] as string) || ""),
       phone: data?.phone ?? "",
       city: data?.city ?? "",
       state: data?.state ?? "",
@@ -65,7 +65,7 @@ function ProfilePage() {
       .from("profiles")
       .upsert({ id: user.id, ...form, updated_at: new Date().toISOString() });
     setBusy(false);
-    if (error) return toast.error("Não foi possível salvar o perfil.");
+    if (error) { toast.error("Não foi possível salvar o perfil."); return; }
     toast.success("Perfil atualizado.");
   }
 

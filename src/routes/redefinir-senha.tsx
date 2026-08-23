@@ -31,12 +31,12 @@ function ResetPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password.length < 6) return toast.error("A senha deve ter no mínimo 6 caracteres.");
-    if (password !== confirm) return toast.error("As senhas não coincidem.");
+    if (password.length < 6) { toast.error("A senha deve ter no mínimo 6 caracteres."); return; }
+    if (password !== confirm) { toast.error("As senhas não coincidem."); return; }
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password });
     setBusy(false);
-    if (error) return toast.error(authErrorMessage(error.message));
+    if (error) { toast.error(authErrorMessage(error.message)); return; }
     toast.success("Senha atualizada com sucesso.");
     navigate({ to: "/dashboard", replace: true });
   }

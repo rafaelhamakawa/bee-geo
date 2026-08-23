@@ -35,7 +35,7 @@ function ForgotPage() {
       redirectTo: `${window.location.origin}/redefinir-senha`,
     });
     setBusy(false);
-    if (error) return toast.error(authErrorMessage(error.message));
+    if (error) { toast.error(authErrorMessage(error.message)); return; }
     setSent(true);
   }
 

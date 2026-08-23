@@ -48,7 +48,7 @@ function EditApiaryPage() {
       .update({ ...values, code: values.code || null })
       .eq("id", id);
     setBusy(false);
-    if (error) return toast.error("Não foi possível salvar as alterações.");
+    if (error) { toast.error("Não foi possível salvar as alterações."); return; }
     toast.success("Apiário atualizado.");
     qc.invalidateQueries({ queryKey: ["apiary", id] });
     navigate({ to: "/apiarios/$id", params: { id } });

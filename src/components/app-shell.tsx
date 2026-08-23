@@ -16,7 +16,7 @@ export function initialsOf(name?: string | null, email?: string | null) {
   const base = (name || email || "").trim();
   if (!base) return "?";
   const parts = base.split(/[\s@.]+/).filter(Boolean);
-  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || base[0].toUpperCase();
+  return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || base.charAt(0).toUpperCase();
 }
 
 export function AppShell({
@@ -48,7 +48,7 @@ export function AppShell({
     );
   }
 
-  const initials = initialsOf(user.user_metadata?.full_name as string, user.email);
+  const initials = initialsOf(user.user_metadata?.['full_name'] as string, user.email);
 
   return (
     <div className="min-h-screen bg-background pb-24">

@@ -34,8 +34,8 @@ function SignupPage() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password.length < 6) return toast.error("A senha deve ter no mínimo 6 caracteres.");
-    if (password !== confirm) return toast.error("As senhas não coincidem.");
+    if (password.length < 6) { toast.error("A senha deve ter no mínimo 6 caracteres."); return; }
+    if (password !== confirm) { toast.error("As senhas não coincidem."); return; }
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
@@ -46,7 +46,7 @@ function SignupPage() {
       },
     });
     setBusy(false);
-    if (error) return toast.error(authErrorMessage(error.message));
+    if (error) { toast.error(authErrorMessage(error.message)); return; }
     if (data.session) {
       toast.success("Conta criada com sucesso!");
       navigate({ to: "/dashboard", replace: true });

@@ -99,9 +99,9 @@ function AnalysisPage() {
   async function calculate() {
     if (!user || !apiary) return;
     if (totals.total_forage_area_ha <= 0)
-      return toast.error("Informe a área de pelo menos um fragmento.");
+      { toast.error("Informe a área de pelo menos um fragmento."); return; }
     if (overCircle)
-      return toast.error("A área total não pode ultrapassar 706,86 ha (raio de 1,5 km).");
+      { toast.error("A área total não pode ultrapassar 706,86 ha (raio de 1,5 km)."); return; }
     setBusy(true);
     const { data: analysis, error } = await supabase
       .from("forage_analyses")
@@ -124,7 +124,7 @@ function AnalysisPage() {
 
     if (error || !analysis) {
       setBusy(false);
-      return toast.error("Erro ao salvar a análise. Tente novamente.");
+      { toast.error("Erro ao salvar a análise. Tente novamente."); return; }
     }
 
     const payload = totals.patches.map((p, i) => ({
@@ -143,7 +143,7 @@ function AnalysisPage() {
     }));
     const { error: patchErr } = await supabase.from("forage_patches").insert(payload);
     setBusy(false);
-    if (patchErr) return toast.error("Erro ao salvar os fragmentos.");
+    if (patchErr) { toast.error("Erro ao salvar os fragmentos."); return; }
     toast.success("Análise salva com sucesso.");
     navigate({ to: "/analises/$analysisId", params: { analysisId: analysis.id as string } });
   }

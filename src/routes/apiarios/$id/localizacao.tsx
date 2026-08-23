@@ -86,14 +86,14 @@ function LocationPage() {
     Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180;
 
   async function save() {
-    if (!valid) return toast.error("Coordenadas inválidas.");
+    if (!valid) { toast.error("Coordenadas inválidas."); return; }
     setBusy(true);
     const { error } = await supabase
       .from("apiaries")
       .update({ latitude: lat, longitude: lng })
       .eq("id", id);
     setBusy(false);
-    if (error) return toast.error("Erro ao salvar a localização.");
+    if (error) { toast.error("Erro ao salvar a localização."); return; }
     toast.success("Localização salva.");
     qc.invalidateQueries({ queryKey: ["apiary", id] });
     navigate({ to: "/apiarios/$id/analise", params: { id } });

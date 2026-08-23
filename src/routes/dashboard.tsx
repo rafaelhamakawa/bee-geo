@@ -55,7 +55,7 @@ function DashboardPage() {
     },
   });
 
-  const firstName = ((user?.user_metadata?.full_name as string) || user?.email || "").split(" ")[0];
+  const firstName = ((user?.user_metadata?.['full_name'] as string) || user?.email || "").split(" ")[0];
 
   const apiaries = data?.apiaries ?? [];
   const analyses = data?.analyses ?? [];

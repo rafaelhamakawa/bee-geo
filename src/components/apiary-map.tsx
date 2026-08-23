@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import maplibregl from "maplibre-gl";
+import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { FLIGHT_RADIUS_M } from "@/lib/geoapis";
 
@@ -12,7 +12,7 @@ function circleGeoJSON(lat: number, lng: number, radiusM: number) {
     const theta = (i / points) * (2 * Math.PI);
     coords.push([lng + distX * Math.cos(theta), lat + distY * Math.sin(theta)]);
   }
-  coords.push(coords[0]);
+  coords.push(coords[0]!);
   return {
     type: "Feature" as const,
     properties: {},
@@ -96,7 +96,7 @@ export default function ApiaryMap({
           const { lat, lng } = marker.getLngLat();
           onMove?.(lat, lng);
         });
-        map.on("click", (e) => {
+        map.on("click", (e: maplibregl.MapMouseEvent) => {
           marker.setLngLat(e.lngLat);
           onMove?.(e.lngLat.lat, e.lngLat.lng);
         });
