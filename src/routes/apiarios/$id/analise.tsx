@@ -476,9 +476,11 @@ function AnalysisPage() {
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Área total de pasto</span>
             <span className="font-semibold text-primary">
-              {fmtHa(totals.total_forage_area_ha)} ha
+              {fmtHa(totals.total_forage_area_ha)} ha ·{" "}
+              {fmtHa(haToKm2(totals.total_forage_area_ha))} km²
             </span>
           </div>
+
           <div className="mt-1 flex justify-between text-sm">
             <span className="text-muted-foreground">Percentual do círculo</span>
             <span className="font-semibold text-primary">
