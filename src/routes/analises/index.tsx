@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { Apiary, ForageAnalysis } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtHa, fmtPct } from "@/lib/geoapis";
+import ApiaryMap from "@/components/apiary-map";
 
 export const Route = createFileRoute("/analises/")({
   ssr: false,
@@ -30,14 +31,21 @@ function AnalysesPage() {
     queryFn: async () => {
       const [an, ap] = await Promise.all([
         supabase.from("forage_analyses").select("*").order("analyzed_at", { ascending: false }),
-        supabase.from("apiaries").select("id,name"),
+        supabase.from("apiaries").select("id,name,latitude,longitude"),
       ]);
       if (an.error) throw an.error;
       if (ap.error) throw ap.error;
       const names = new Map(
-        ((ap.data ?? []) as Pick<Apiary, "id" | "name">[]).map((a) => [a.id, a.name]),
+        ((ap.data ?? []) as Pick<Apiary, "id" | "name" | "latitude" | "longitude">[]).map(
+          (a) => [a.id, a.name],
+        ),
       );
-      return { analyses: (an.data ?? []) as ForageAnalysis[], names };
+      const locations = new Map(
+        ((ap.data ?? []) as Pick<Apiary, "id" | "name" | "latitude" | "longitude">[]).map(
+          (a) => [a.id, a],
+        ),
+      );
+      return { analyses: (an.data ?? []) as ForageAnalysis[], names, locations };
     },
   });
 
@@ -77,6 +85,20 @@ function AnalysesPage() {
                   {new Date(an.analyzed_at).toLocaleDateString("pt-BR")} · pasto{" "}
                   {fmtHa(Number(an.forage_area_ha))} ha · {fmtPct(Number(an.forage_percentage))}
                 </p>
+                {(() => {
+                  const apiary = data!.locations.get(an.apiary_id);
+                  if (!apiary?.latitude || !apiary?.longitude) return null;
+                  return (
+                    <div className="pointer-events-none mt-3 overflow-hidden rounded-xl">
+                      <ApiaryMap
+                        latitude={apiary.latitude}
+                        longitude={apiary.longitude}
+                        showCircle={true}
+                        className="h-40 w-full"
+                      />
+                    </div>
+                  );
+                })()}
               </Link>
             </li>
           ))}
