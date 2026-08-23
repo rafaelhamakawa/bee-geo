@@ -72,6 +72,12 @@ function AnalysisPage() {
   const navigate = useNavigate();
   const [rows, setRows] = useState<Row[] | null>(null);
   const [busy, setBusy] = useState(false);
+  const [scan, setScan] = useState<VegetationScan | null>(null);
+  const [scanStatus, setScanStatus] = useState<"idle" | "running" | "done" | "failed">("idle");
+  const [drawing, setDrawing] = useState(false);
+  const [drawPoints, setDrawPoints] = useState<[number, number][]>([]);
+  const scanStarted = useRef(false);
+
 
   const { data, isLoading } = useQuery({
     queryKey: ["apiary-analysis", id, user?.id],
