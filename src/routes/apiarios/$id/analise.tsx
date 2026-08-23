@@ -104,6 +104,84 @@ function AnalysisPage() {
     setRows(list.map((r) => (r.id === rowId ? { ...r, ...patch } : r)));
   }
 
+  async function runScan() {
+    if (apiary?.latitude == null || apiary?.longitude == null) return;
+    setScanStatus("running");
+    try {
+      const result = await scanVegetation(apiary.latitude, apiary.longitude);
+      setScan(result);
+      const detected: Row[] = [];
+      if (result.darkGreenHa > 0.01)
+        detected.push({
+          id: crypto.randomUUID(),
+          patch_number: 1,
+          name: "Vegetação verde escuro (detectada)",
+          vegetation_type: "Formação florestal",
+          land_cover_type: "Formação florestal",
+          area_ha: Number(result.darkGreenHa.toFixed(2)),
+          hive_multiplier: baseMultiplier,
+          is_approved: true,
+        });
+      if (result.lightGreenHa > 0.01)
+        detected.push({
+          id: crypto.randomUUID(),
+          patch_number: detected.length + 1,
+          name: "Vegetação verde claro (detectada)",
+          vegetation_type: "Formação campestre",
+          land_cover_type: "Formação campestre",
+          area_ha: Number(result.lightGreenHa.toFixed(2)),
+          hive_multiplier: baseMultiplier,
+          is_approved: true,
+        });
+      if (detected.length === 0) {
+        setScanStatus("failed");
+        toast.error("Nenhuma área verde detectada. Delimite manualmente.");
+        return;
+      }
+      setRows(detected);
+      setScanStatus("done");
+      toast.success("Vegetação detectada automaticamente pelo satélite.");
+    } catch {
+      setScanStatus("failed");
+      toast.error("Não foi possível analisar a imagem. Delimite as áreas manualmente.");
+    }
+  }
+
+  useEffect(() => {
+    if (scanStarted.current) return;
+    if (apiary?.latitude == null || apiary?.longitude == null) return;
+    scanStarted.current = true;
+    void runScan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiary?.latitude, apiary?.longitude]);
+
+  function finishPolygon() {
+    if (drawPoints.length < 3) {
+      toast.error("Marque ao menos 3 pontos no mapa.");
+      return;
+    }
+    const area = polygonAreaHa(drawPoints);
+    const base = rows ?? [];
+    setRows([
+      ...base,
+      {
+        id: crypto.randomUUID(),
+        patch_number: base.length + 1,
+        name: `Área delimitada ${base.length + 1}`,
+        vegetation_type: "Vegetação nativa",
+        land_cover_type: "Vegetação nativa",
+        area_ha: Number(area.toFixed(2)),
+        hive_multiplier: baseMultiplier,
+        is_approved: true,
+      },
+    ]);
+    setDrawPoints([]);
+    setDrawing(false);
+    toast.success(`Área delimitada: ${fmtHa(area)} ha`);
+  }
+
+
+
   async function calculate() {
     if (!user || !apiary) return;
     if (totals.total_forage_area_ha <= 0)
