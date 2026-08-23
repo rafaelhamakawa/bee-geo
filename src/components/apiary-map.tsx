@@ -169,7 +169,7 @@ export default function ApiaryMap({
       const src = map.getSource("draw") as maplibregl.GeoJSONSource | undefined;
       if (!src) return;
       const pts = drawPoints ?? [];
-      const features: GeoJSON.Feature[] = pts.map((p) => ({
+      const features: any[] = pts.map((p) => ({
         type: "Feature",
         properties: {},
         geometry: { type: "Point", coordinates: p },
