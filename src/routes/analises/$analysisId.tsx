@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtHa, fmtPct, TECHNICAL_DISCLAIMER } from "@/lib/geoapis";
+import ApiaryMap from "@/components/apiary-map";
 
 export const Route = createFileRoute("/analises/$analysisId")({
   ssr: false,
