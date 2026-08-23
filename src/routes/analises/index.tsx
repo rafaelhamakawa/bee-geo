@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { Apiary, ForageAnalysis } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmtHa, fmtPct } from "@/lib/geoapis";
+import ApiaryMap from "@/components/apiary-map";
 
 export const Route = createFileRoute("/analises/")({
   ssr: false,
