@@ -51,7 +51,7 @@ function AnalysesPage() {
 
   return (
     <AppShell title="Análises">
-      {isLoading ? (
+      {isLoading || !data ? (
         <div className="space-y-3">
           <Skeleton className="h-20 w-full" />
           <Skeleton className="h-20 w-full" />
