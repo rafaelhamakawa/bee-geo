@@ -97,21 +97,50 @@ export default function ApiaryMap({
             paint: { "line-color": "#F5A000", "line-width": 2 },
           });
         }
+        map.addSource("draw", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "draw-fill",
+          type: "fill",
+          source: "draw",
+          paint: { "fill-color": "#0B6337", "fill-opacity": 0.35 },
+        });
+        map.addLayer({
+          id: "draw-line",
+          type: "line",
+          source: "draw",
+          paint: { "line-color": "#0B6337", "line-width": 2 },
+        });
+        map.addLayer({
+          id: "draw-points",
+          type: "circle",
+          source: "draw",
+          filter: ["==", "$type", "Point"],
+          paint: { "circle-radius": 4, "circle-color": "#F5A000" },
+        });
       });
 
       const marker = new maplibregl.Marker({ color: "#0B6337", draggable })
         .setLngLat([longitude, latitude])
         .addTo(map);
-      if (draggable) {
-        marker.on("dragend", () => {
-          const { lat, lng } = marker.getLngLat();
-          onMove?.(lat, lng);
-        });
-        map.on("click", (e: maplibregl.MapMouseEvent) => {
+      marker.on("dragend", () => {
+        if (!draggable) return;
+        const { lat, lng } = marker.getLngLat();
+        onMove?.(lat, lng);
+      });
+      map.on("click", (e: maplibregl.MapMouseEvent) => {
+        if (drawingRef.current) {
+          onDrawPointRef.current?.(e.lngLat.lng, e.lngLat.lat);
+          return;
+        }
+        if (draggable) {
           marker.setLngLat(e.lngLat);
           onMove?.(e.lngLat.lat, e.lngLat.lng);
-        });
-      }
+        }
+      });
+
       markerRef.current = marker;
       mapRef.current = map;
     } catch {
