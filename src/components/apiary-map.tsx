@@ -42,6 +42,9 @@ export default function ApiaryMap({
   onMove,
   showCircle = true,
   className = "h-72 w-full rounded-2xl",
+  drawing = false,
+  drawPoints,
+  onDrawPoint,
 }: {
   latitude: number;
   longitude: number;
@@ -49,11 +52,19 @@ export default function ApiaryMap({
   onMove?: (lat: number, lng: number) => void;
   showCircle?: boolean;
   className?: string;
+  drawing?: boolean;
+  drawPoints?: [number, number][];
+  onDrawPoint?: (lng: number, lat: number) => void;
 }) {
   const container = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
+  const drawingRef = useRef(drawing);
+  const onDrawPointRef = useRef(onDrawPoint);
+  drawingRef.current = drawing;
+  onDrawPointRef.current = onDrawPoint;
   const [failed, setFailed] = useState(false);
+
 
   useEffect(() => {
     if (!container.current || mapRef.current) return;
