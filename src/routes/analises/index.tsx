@@ -31,14 +31,21 @@ function AnalysesPage() {
     queryFn: async () => {
       const [an, ap] = await Promise.all([
         supabase.from("forage_analyses").select("*").order("analyzed_at", { ascending: false }),
-        supabase.from("apiaries").select("id,name"),
+        supabase.from("apiaries").select("id,name,latitude,longitude"),
       ]);
       if (an.error) throw an.error;
       if (ap.error) throw ap.error;
       const names = new Map(
-        ((ap.data ?? []) as Pick<Apiary, "id" | "name">[]).map((a) => [a.id, a.name]),
+        ((ap.data ?? []) as Pick<Apiary, "id" | "name" | "latitude" | "longitude">[]).map(
+          (a) => [a.id, a.name],
+        ),
       );
-      return { analyses: (an.data ?? []) as ForageAnalysis[], names };
+      const locations = new Map(
+        ((ap.data ?? []) as Pick<Apiary, "id" | "name" | "latitude" | "longitude">[]).map(
+          (a) => [a.id, a],
+        ),
+      );
+      return { analyses: (an.data ?? []) as ForageAnalysis[], names, locations };
     },
   });
 
