@@ -280,21 +280,108 @@ function AnalysisPage() {
             latitude={apiary.latitude}
             longitude={apiary.longitude}
             className="h-64 w-full rounded-2xl"
+            drawing={drawing}
+            drawPoints={drawPoints}
+            onDrawPoint={(lng, lat) => setDrawPoints((p) => [...p, [lng, lat]])}
           />
         </Suspense>
 
         <div className="rounded-2xl bg-card p-4 text-sm shadow-sm">
           <p className="font-semibold text-primary">Área de referência</p>
           <p className="text-muted-foreground">
-            Círculo de 1,5 km = 706,86 ha · 1% da área = 7,0686 ha
+            Círculo de 1,5 km = 706,86 ha (7,0686 km²) · 1% da área = 7,0686 ha
           </p>
           <p className="mt-1 text-muted-foreground">
             Bioma: {apiary.biome ?? "não informado"} · multiplicador base {baseMultiplier}
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Serviço automático de detecção ainda não configurado — informe os fragmentos manualmente.
-          </p>
+
+          {scanStatus === "running" ? (
+            <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Analisando a imagem de satélite dentro do
+              raio de 1,5 km…
+            </p>
+          ) : null}
+
+          {scanStatus === "done" && scan ? (
+            <div className="mt-3 space-y-1 rounded-xl bg-secondary/40 p-3 text-xs">
+              <p className="font-semibold text-primary">Detecção automática por cor</p>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Verde escuro (arbóreo)</span>
+                <span>{fmtHa(scan.darkGreenHa)} ha</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Verde claro (herbáceo)</span>
+                <span>{fmtHa(scan.lightGreenHa)} ha</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Água (excluída)</span>
+                <span>{fmtHa(scan.waterHa)} ha</span>
+              </div>
+              <div className="flex justify-between font-semibold text-primary">
+                <span>Pasto apícola detectado</span>
+                <span>
+                  {fmtHa(haToKm2(scan.totalVegetationHa))} km² · {fmtHa(scan.totalVegetationHa)} ha
+                </span>
+              </div>
+              <p className="pt-1 text-muted-foreground">
+                Ajuste os fragmentos abaixo se necessário.
+              </p>
+            </div>
+          ) : null}
+
+          {scanStatus === "failed" ? (
+            <p className="mt-3 text-xs text-destructive">
+              Não foi possível delimitar automaticamente. Delimite as áreas de vegetação no mapa ou
+              informe os fragmentos manualmente.
+            </p>
+          ) : null}
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              className="h-10"
+              onClick={runScan}
+              disabled={scanStatus === "running"}
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              {scanStatus === "running" ? "Detectando…" : "Detectar novamente"}
+            </Button>
+            <Button
+              variant={drawing ? "default" : "outline"}
+              className="h-10"
+              onClick={() => {
+                setDrawing((d) => !d);
+                setDrawPoints([]);
+              }}
+            >
+              <PenLine className="mr-2 h-4 w-4" />
+              {drawing ? "Cancelar delimitação" : "Delimitar no mapa"}
+            </Button>
+          </div>
+
+          {drawing ? (
+            <div className="mt-3 rounded-xl bg-secondary/40 p-3 text-xs">
+              <p className="text-muted-foreground">
+                Toque no mapa para marcar os vértices da área de vegetação ({drawPoints.length}{" "}
+                pontos).
+              </p>
+              {drawPoints.length >= 3 ? (
+                <p className="mt-1 font-semibold text-primary">
+                  Área atual: {fmtHa(polygonAreaHa(drawPoints))} ha
+                </p>
+              ) : null}
+              <div className="mt-2 flex gap-2">
+                <Button className="h-9" onClick={finishPolygon}>
+                  Concluir área
+                </Button>
+                <Button variant="ghost" className="h-9" onClick={() => setDrawPoints([])}>
+                  Limpar pontos
+                </Button>
+              </div>
+            </div>
+          ) : null}
         </div>
+
 
         <div className="space-y-3">
           {list.map((r, idx) => (
