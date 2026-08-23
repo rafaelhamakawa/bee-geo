@@ -98,7 +98,21 @@ function ResultPage() {
     <AppShell title="Resultado" back="/analises">
       <StepIndicator step={3} />
 
-      <div className="mt-4 rounded-2xl bg-primary p-6 text-center text-primary-foreground">
+      {apiary?.latitude != null && apiary?.longitude != null ? (
+        <div className="mt-4">
+          <ApiaryMap latitude={apiary.latitude} longitude={apiary.longitude} showCircle />
+        </div>
+      ) : null}
+
+      <div className="mt-4 rounded-2xl bg-primary p-5 text-center text-primary-foreground">
+        <p className="text-sm opacity-90">Colmeias instaladas / capacidade do apiário</p>
+        <p className="mt-1 text-4xl font-extrabold text-honey-light">
+          {installed} <span className="text-2xl opacity-80">/</span> {an.safe_hive_capacity}
+        </p>
+        <p className="text-sm opacity-90">colmeias</p>
+      </div>
+
+      <div className="mt-3 rounded-2xl bg-primary p-6 text-center text-primary-foreground">
         <p className="text-sm opacity-90">Capacidade segura recomendada</p>
         <p className="mt-1 text-6xl font-extrabold text-honey-light">{an.safe_hive_capacity}</p>
         <p className="text-sm opacity-90">colmeias</p>
