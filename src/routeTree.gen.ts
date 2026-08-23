@@ -10,33 +10,245 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
+import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
+import { Route as TermosRouteImport } from './routes/termos'
+import { Route as AnalisesIndexRouteImport } from './routes/analises/index'
+import { Route as AnalisesAnalysisIdRouteImport } from './routes/analises/$analysisId'
+import { Route as ApiariosIndexRouteImport } from './routes/apiarios/index'
+import { Route as ApiariosNovoRouteImport } from './routes/apiarios/novo'
+import { Route as ApiariosIdIndexRouteImport } from './routes/apiarios/$id/index'
+import { Route as ApiariosIdAnaliseRouteImport } from './routes/apiarios/$id/analise'
+import { Route as ApiariosIdEditarRouteImport } from './routes/apiarios/$id/editar'
+import { Route as ApiariosIdLocalizacaoRouteImport } from './routes/apiarios/$id/localizacao'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerfilRoute = PerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
+  id: '/recuperar-senha',
+  path: '/recuperar-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
+  id: '/redefinir-senha',
+  path: '/redefinir-senha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalisesIndexRoute = AnalisesIndexRouteImport.update({
+  id: '/analises/',
+  path: '/analises/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalisesAnalysisIdRoute = AnalisesAnalysisIdRouteImport.update({
+  id: '/analises/$analysisId',
+  path: '/analises/$analysisId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiariosIndexRoute = ApiariosIndexRouteImport.update({
+  id: '/apiarios/',
+  path: '/apiarios/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiariosNovoRoute = ApiariosNovoRouteImport.update({
+  id: '/apiarios/novo',
+  path: '/apiarios/novo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiariosIdIndexRoute = ApiariosIdIndexRouteImport.update({
+  id: '/apiarios/$id/',
+  path: '/apiarios/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiariosIdAnaliseRoute = ApiariosIdAnaliseRouteImport.update({
+  id: '/apiarios/$id/analise',
+  path: '/apiarios/$id/analise',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiariosIdEditarRoute = ApiariosIdEditarRouteImport.update({
+  id: '/apiarios/$id/editar',
+  path: '/apiarios/$id/editar',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiariosIdLocalizacaoRoute = ApiariosIdLocalizacaoRouteImport.update({
+  id: '/apiarios/$id/localizacao',
+  path: '/apiarios/$id/localizacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cadastro': typeof CadastroRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/privacidade': typeof PrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/termos': typeof TermosRoute
+  '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
+  '/apiarios/novo': typeof ApiariosNovoRoute
+  '/analises/': typeof AnalisesIndexRoute
+  '/apiarios/': typeof ApiariosIndexRoute
+  '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
+  '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
+  '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
+  '/apiarios/$id/': typeof ApiariosIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cadastro': typeof CadastroRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/privacidade': typeof PrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/termos': typeof TermosRoute
+  '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
+  '/apiarios/novo': typeof ApiariosNovoRoute
+  '/analises': typeof AnalisesIndexRoute
+  '/apiarios': typeof ApiariosIndexRoute
+  '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
+  '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
+  '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
+  '/apiarios/$id': typeof ApiariosIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cadastro': typeof CadastroRoute
+  '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
+  '/perfil': typeof PerfilRoute
+  '/privacidade': typeof PrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
+  '/redefinir-senha': typeof RedefinirSenhaRoute
+  '/termos': typeof TermosRoute
+  '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
+  '/apiarios/novo': typeof ApiariosNovoRoute
+  '/analises/': typeof AnalisesIndexRoute
+  '/apiarios/': typeof ApiariosIndexRoute
+  '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
+  '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
+  '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
+  '/apiarios/$id/': typeof ApiariosIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/cadastro'
+    | '/dashboard'
+    | '/login'
+    | '/perfil'
+    | '/privacidade'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
+    | '/termos'
+    | '/analises/$analysisId'
+    | '/apiarios/novo'
+    | '/analises/'
+    | '/apiarios/'
+    | '/apiarios/$id/analise'
+    | '/apiarios/$id/editar'
+    | '/apiarios/$id/localizacao'
+    | '/apiarios/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/cadastro'
+    | '/dashboard'
+    | '/login'
+    | '/perfil'
+    | '/privacidade'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
+    | '/termos'
+    | '/analises/$analysisId'
+    | '/apiarios/novo'
+    | '/analises'
+    | '/apiarios'
+    | '/apiarios/$id/analise'
+    | '/apiarios/$id/editar'
+    | '/apiarios/$id/localizacao'
+    | '/apiarios/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/cadastro'
+    | '/dashboard'
+    | '/login'
+    | '/perfil'
+    | '/privacidade'
+    | '/recuperar-senha'
+    | '/redefinir-senha'
+    | '/termos'
+    | '/analises/$analysisId'
+    | '/apiarios/novo'
+    | '/analises/'
+    | '/apiarios/'
+    | '/apiarios/$id/analise'
+    | '/apiarios/$id/editar'
+    | '/apiarios/$id/localizacao'
+    | '/apiarios/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CadastroRoute: typeof CadastroRoute
+  DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
+  PerfilRoute: typeof PerfilRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
+  RecuperarSenhaRoute: typeof RecuperarSenhaRoute
+  RedefinirSenhaRoute: typeof RedefinirSenhaRoute
+  TermosRoute: typeof TermosRoute
+  AnalisesAnalysisIdRoute: typeof AnalisesAnalysisIdRoute
+  ApiariosNovoRoute: typeof ApiariosNovoRoute
+  AnalisesIndexRoute: typeof AnalisesIndexRoute
+  ApiariosIndexRoute: typeof ApiariosIndexRoute
+  ApiariosIdAnaliseRoute: typeof ApiariosIdAnaliseRoute
+  ApiariosIdEditarRoute: typeof ApiariosIdEditarRoute
+  ApiariosIdLocalizacaoRoute: typeof ApiariosIdLocalizacaoRoute
+  ApiariosIdIndexRoute: typeof ApiariosIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +260,139 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/perfil': {
+      id: '/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof PerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar-senha': {
+      id: '/recuperar-senha'
+      path: '/recuperar-senha'
+      fullPath: '/recuperar-senha'
+      preLoaderRoute: typeof RecuperarSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/redefinir-senha': {
+      id: '/redefinir-senha'
+      path: '/redefinir-senha'
+      fullPath: '/redefinir-senha'
+      preLoaderRoute: typeof RedefinirSenhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analises/': {
+      id: '/analises/'
+      path: '/analises'
+      fullPath: '/analises/'
+      preLoaderRoute: typeof AnalisesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analises/$analysisId': {
+      id: '/analises/$analysisId'
+      path: '/analises/$analysisId'
+      fullPath: '/analises/$analysisId'
+      preLoaderRoute: typeof AnalisesAnalysisIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apiarios/': {
+      id: '/apiarios/'
+      path: '/apiarios'
+      fullPath: '/apiarios/'
+      preLoaderRoute: typeof ApiariosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apiarios/novo': {
+      id: '/apiarios/novo'
+      path: '/apiarios/novo'
+      fullPath: '/apiarios/novo'
+      preLoaderRoute: typeof ApiariosNovoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apiarios/$id/': {
+      id: '/apiarios/$id/'
+      path: '/apiarios/$id'
+      fullPath: '/apiarios/$id/'
+      preLoaderRoute: typeof ApiariosIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apiarios/$id/analise': {
+      id: '/apiarios/$id/analise'
+      path: '/apiarios/$id/analise'
+      fullPath: '/apiarios/$id/analise'
+      preLoaderRoute: typeof ApiariosIdAnaliseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apiarios/$id/editar': {
+      id: '/apiarios/$id/editar'
+      path: '/apiarios/$id/editar'
+      fullPath: '/apiarios/$id/editar'
+      preLoaderRoute: typeof ApiariosIdEditarRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/apiarios/$id/localizacao': {
+      id: '/apiarios/$id/localizacao'
+      path: '/apiarios/$id/localizacao'
+      fullPath: '/apiarios/$id/localizacao'
+      preLoaderRoute: typeof ApiariosIdLocalizacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CadastroRoute: CadastroRoute,
+  DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
+  PerfilRoute: PerfilRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
+  RecuperarSenhaRoute: RecuperarSenhaRoute,
+  RedefinirSenhaRoute: RedefinirSenhaRoute,
+  TermosRoute: TermosRoute,
+  AnalisesAnalysisIdRoute: AnalisesAnalysisIdRoute,
+  ApiariosNovoRoute: ApiariosNovoRoute,
+  AnalisesIndexRoute: AnalisesIndexRoute,
+  ApiariosIndexRoute: ApiariosIndexRoute,
+  ApiariosIdAnaliseRoute: ApiariosIdAnaliseRoute,
+  ApiariosIdEditarRoute: ApiariosIdEditarRoute,
+  ApiariosIdLocalizacaoRoute: ApiariosIdLocalizacaoRoute,
+  ApiariosIdIndexRoute: ApiariosIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
