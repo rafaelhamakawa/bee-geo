@@ -51,7 +51,11 @@ function AnalysesPage() {
 
   return (
     <AppShell title="Análises">
-      {isLoading || !data ? (
+      {isError ? (
+        <p className="rounded-2xl bg-card p-5 text-sm text-muted-foreground">
+          Não foi possível carregar as análises. Verifique sua conexão.
+        </p>
+      ) : isLoading || !data ? (
         <div className="space-y-3">
           <Skeleton className="h-20 w-full" />
           <Skeleton className="h-20 w-full" />
