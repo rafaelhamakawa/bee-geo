@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { lazy, Suspense, useMemo, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Plus, Trash2, Loader2, Sparkles, PenLine } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, StepIndicator } from "@/components/app-shell";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,8 +28,10 @@ import {
   CIRCLE_AREA_HA,
   type PatchInput,
 } from "@/lib/geoapis";
+import { haToKm2, polygonAreaHa, scanVegetation, type VegetationScan } from "@/lib/vegetation-scan";
 
 const ApiaryMap = lazy(() => import("@/components/apiary-map"));
+
 
 export const Route = createFileRoute("/apiarios/$id/analise")({
   ssr: false,
