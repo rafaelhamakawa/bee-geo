@@ -46,9 +46,6 @@ function ApiaryDetailPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const qc = useQueryClient();
-  const [hives, setHives] = useState<number | null>(null);
-  const [savingHives, setSavingHives] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["apiary", id, user?.id],
@@ -67,6 +64,8 @@ function ApiaryDetailPage() {
       return { apiary: a.data as Apiary | null, analyses: (an.data ?? []) as ForageAnalysis[] };
     },
   });
+
+  const { data: hives } = useHives(id);
 
   if (isLoading) {
     return (
@@ -89,21 +88,9 @@ function ApiaryDetailPage() {
   const analyses = data.analyses;
   const latest = analyses[0];
   const safe = latest?.safe_hive_capacity ?? 0;
-  const current = hives ?? a.current_hives;
-  const occupancy = safe > 0 ? Math.min(100, Math.round((current / safe) * 100)) : 0;
+  // Colmeias instaladas = contagem das colmeias ativas do apiário.
+  const current = (hives ?? []).filter((h) => h.status === "active").length;
 
-  async function saveHives() {
-    setSavingHives(true);
-    const { error } = await supabase
-      .from("apiaries")
-      .update({ current_hives: current })
-      .eq("id", id);
-    setSavingHives(false);
-    if (error) { toast.error("Erro ao salvar as colmeias."); return; }
-    toast.success("Colmeias atualizadas.");
-    qc.invalidateQueries({ queryKey: ["apiary", id] });
-    qc.invalidateQueries({ queryKey: ["dashboard"] });
-  }
 
   async function remove() {
     const { error } = await supabase.from("apiaries").delete().eq("id", id);
