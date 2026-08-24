@@ -242,9 +242,16 @@ export default function ApiaryMap({
     if (!map) return;
     markerRef.current?.setLngLat([longitude, latitude]);
     map.easeTo({ center: [longitude, latitude], duration: 400 });
-    const src = map.getSource("radius") as maplibregl.GeoJSONSource | undefined;
-    src?.setData(circleGeoJSON(latitude, longitude, FLIGHT_RADIUS_M));
-  }, [latitude, longitude]);
+    const apply = () => {
+      const src = map.getSource("radius") as maplibregl.GeoJSONSource | undefined;
+      src?.setData(circleGeoJSON(latitude, longitude, FLIGHT_RADIUS_M));
+      const nsrc = map.getSource("neighbors") as maplibregl.GeoJSONSource | undefined;
+      nsrc?.setData(neighborsGeoJSON(latitude, longitude, FLIGHT_RADIUS_M, nearby ?? []));
+    };
+    if (map.isStyleLoaded()) apply();
+    else map.once("load", apply);
+  }, [latitude, longitude, nearby]);
+
 
   useEffect(() => {
     const map = mapRef.current;
