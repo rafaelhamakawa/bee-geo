@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as FinanceiroRouteImport } from './routes/financeiro'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PerfilRouteImport } from './routes/perfil'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
@@ -43,6 +44,11 @@ const CadastroRoute = CadastroRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceiroRoute = FinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -158,6 +165,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -181,6 +189,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
   '/privacidade': typeof PrivacidadeRoute
@@ -205,6 +214,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/financeiro'
     | '/login'
     | '/perfil'
     | '/privacidade'
@@ -227,6 +237,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/financeiro'
     | '/login'
     | '/perfil'
     | '/privacidade'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/financeiro'
     | '/login'
     | '/perfil'
     | '/privacidade'
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastroRoute: typeof CadastroRoute
   DashboardRoute: typeof DashboardRoute
+  FinanceiroRoute: typeof FinanceiroRoute
   LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
   PrivacidadeRoute: typeof PrivacidadeRoute
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/financeiro': {
+      id: '/financeiro'
+      path: '/financeiro'
+      fullPath: '/financeiro'
+      preLoaderRoute: typeof FinanceiroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -440,6 +460,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastroRoute: CadastroRoute,
   DashboardRoute: DashboardRoute,
+  FinanceiroRoute: FinanceiroRoute,
   LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
   PrivacidadeRoute: PrivacidadeRoute,
