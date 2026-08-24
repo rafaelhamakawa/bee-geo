@@ -87,6 +87,7 @@ export default function ApiaryMap({
   drawing = false,
   drawPoints,
   onDrawPoint,
+  nearby,
 }: {
   latitude: number;
   longitude: number;
@@ -97,15 +98,19 @@ export default function ApiaryMap({
   drawing?: boolean;
   drawPoints?: [number, number][];
   onDrawPoint?: (lng: number, lat: number) => void;
+  nearby?: NearbyApiary[];
 }) {
   const container = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
   const drawingRef = useRef(drawing);
   const onDrawPointRef = useRef(onDrawPoint);
+  const nearbyRef = useRef<NearbyApiary[]>(nearby ?? []);
   drawingRef.current = drawing;
   onDrawPointRef.current = onDrawPoint;
+  nearbyRef.current = nearby ?? [];
   const [failed, setFailed] = useState(false);
+
 
 
   useEffect(() => {
