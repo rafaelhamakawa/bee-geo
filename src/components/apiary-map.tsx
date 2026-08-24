@@ -120,7 +120,8 @@ export default function ApiaryMap({
       });
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
       map.on("error", () => setFailed(true));
-      map.on("load", () => {
+      const addLayers = () => {
+        if (map.getSource("radius")) return;
         if (showCircle) {
           map.addSource("radius", {
             type: "geojson",
@@ -130,15 +131,48 @@ export default function ApiaryMap({
             id: "radius-fill",
             type: "fill",
             source: "radius",
-            paint: { "fill-color": "#F5A000", "fill-opacity": 0.15 },
+            paint: { "fill-color": "#F5A000", "fill-opacity": 0.28 },
           });
           map.addLayer({
             id: "radius-line",
             type: "line",
             source: "radius",
-            paint: { "line-color": "#F5A000", "line-width": 2 },
+            paint: { "line-color": "#1A1A1A", "line-width": 3 },
+          });
+          map.addSource("neighbors", {
+            type: "geojson",
+            data: neighborsGeoJSON(latitude, longitude, FLIGHT_RADIUS_M, nearbyRef.current),
+          });
+          map.addLayer({
+            id: "neighbors-fill",
+            type: "fill",
+            source: "neighbors",
+            filter: ["==", ["get", "kind"], "neighbor"],
+            paint: { "fill-color": "#F5A000", "fill-opacity": 0.12 },
+          });
+          map.addLayer({
+            id: "neighbors-line",
+            type: "line",
+            source: "neighbors",
+            filter: ["==", ["get", "kind"], "neighbor"],
+            paint: { "line-color": "#1A1A1A", "line-width": 1.5, "line-dasharray": [2, 2] },
+          });
+          map.addLayer({
+            id: "overlap-fill",
+            type: "fill",
+            source: "neighbors",
+            filter: ["==", ["get", "kind"], "overlap"],
+            paint: { "fill-color": "#C1121F", "fill-opacity": 0.4 },
+          });
+          map.addLayer({
+            id: "overlap-line",
+            type: "line",
+            source: "neighbors",
+            filter: ["==", ["get", "kind"], "overlap"],
+            paint: { "line-color": "#C1121F", "line-width": 2 },
           });
         }
+
         map.addSource("draw", {
           type: "geojson",
           data: { type: "FeatureCollection", features: [] },
