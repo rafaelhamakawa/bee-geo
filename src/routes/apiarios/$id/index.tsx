@@ -212,30 +212,9 @@ function ApiaryDetailPage() {
         </TabsContent>
 
         <TabsContent value="hives" className="space-y-4">
-          <div className="rounded-2xl bg-card p-4 shadow-sm">
-            <Label htmlFor="hivecount">Colmeias instaladas</Label>
-            <Input
-              id="hivecount"
-              type="number"
-              min={0}
-              value={current}
-              onChange={(e) => setHives(Number(e.target.value))}
-              className="mt-2 h-12"
-            />
-            <div className="mt-4">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Ocupação</span>
-                <span>
-                  {current} / {safe || "—"}
-                </span>
-              </div>
-              <Progress value={occupancy} className="mt-2" />
-            </div>
-            <Button onClick={saveHives} disabled={savingHives} className="mt-4 h-12 w-full">
-              {savingHives ? "Salvando…" : "Salvar"}
-            </Button>
-          </div>
+          <HivesTab apiary={a} safeCapacity={safe} />
         </TabsContent>
+
 
         <TabsContent value="analyses" className="space-y-3">
           {analyses.length === 0 ? (
