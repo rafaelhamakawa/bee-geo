@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import polygonClipping from "polygon-clipping";
 import { FLIGHT_RADIUS_M } from "@/lib/geoapis";
+
+export type NearbyApiary = { latitude: number; longitude: number; name?: string | null };
+
 
 function circleGeoJSON(lat: number, lng: number, radiusM: number) {
   const points = 96;
