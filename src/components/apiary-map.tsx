@@ -196,7 +196,10 @@ export default function ApiaryMap({
           filter: ["==", "$type", "Point"],
           paint: { "circle-radius": 4, "circle-color": "#F5A000" },
         });
-      });
+      };
+      if (map.isStyleLoaded()) addLayers();
+      else map.on("load", addLayers);
+
 
       const marker = new maplibregl.Marker({ color: "#0B6337", draggable })
         .setLngLat([longitude, latitude])
