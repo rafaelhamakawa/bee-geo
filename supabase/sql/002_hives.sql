@@ -163,7 +163,7 @@ create policy "hives_select_own" on public.hives for select to authenticated
 using (
   user_id = auth.uid()
   or exists (select 1 from public.apiaries a where a.id = hives.apiary_id and a.user_id = auth.uid())
-  or public.has_role(auth.uid(), 'admin')
+  or public.has_role(auth.uid(), 'admin'::public.app_role)
 );
 
 drop policy if exists "hives_insert_own" on public.hives;
@@ -171,38 +171,38 @@ create policy "hives_insert_own" on public.hives for insert to authenticated
 with check (
   (user_id = auth.uid()
    and exists (select 1 from public.apiaries a where a.id = apiary_id and a.user_id = auth.uid()))
-  or public.has_role(auth.uid(), 'admin')
+  or public.has_role(auth.uid(), 'admin'::public.app_role)
 );
 
 drop policy if exists "hives_update_own" on public.hives;
 create policy "hives_update_own" on public.hives for update to authenticated
-using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'))
-with check (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'::public.app_role))
+with check (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'::public.app_role));
 
 drop policy if exists "hives_delete_own" on public.hives;
 create policy "hives_delete_own" on public.hives for delete to authenticated
-using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'::public.app_role));
 
 drop policy if exists "hive_managements_select_own" on public.hive_managements;
 create policy "hive_managements_select_own" on public.hive_managements for select to authenticated
-using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'::public.app_role));
 
 drop policy if exists "hive_managements_insert_own" on public.hive_managements;
 create policy "hive_managements_insert_own" on public.hive_managements for insert to authenticated
 with check (
   (user_id = auth.uid()
    and exists (select 1 from public.hives h where h.id = hive_id and h.user_id = auth.uid()))
-  or public.has_role(auth.uid(), 'admin')
+  or public.has_role(auth.uid(), 'admin'::public.app_role)
 );
 
 drop policy if exists "hive_managements_update_own" on public.hive_managements;
 create policy "hive_managements_update_own" on public.hive_managements for update to authenticated
-using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'))
-with check (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'::public.app_role))
+with check (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'::public.app_role));
 
 drop policy if exists "hive_managements_delete_own" on public.hive_managements;
 create policy "hive_managements_delete_own" on public.hive_managements for delete to authenticated
-using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'));
+using (user_id = auth.uid() or public.has_role(auth.uid(), 'admin'::public.app_role));
 
 -- =========================
 -- Storage: bucket privado hive-photos
