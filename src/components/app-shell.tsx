@@ -8,9 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 const NAV = [
   { to: "/dashboard", label: "Início", icon: Home },
   { to: "/apiarios", label: "Apiários", icon: Layers },
-  { to: "/analises", label: "Análises", icon: BarChart3 },
+  { to: "/financeiro", label: "Financeiro", icon: BarChart3 },
   { to: "/perfil", label: "Perfil", icon: User },
 ] as const;
+
 
 export function initialsOf(name?: string | null, email?: string | null) {
   const base = (name || email || "").trim();
