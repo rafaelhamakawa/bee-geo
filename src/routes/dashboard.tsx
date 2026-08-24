@@ -42,15 +42,21 @@ function DashboardPage() {
     queryKey: ["dashboard", user?.id],
     enabled: !!user,
     queryFn: async () => {
-      const [apiaries, analyses] = await Promise.all([
+      const [apiaries, analyses, hives] = await Promise.all([
         supabase.from("apiaries").select("*").order("created_at", { ascending: false }),
         supabase.from("forage_analyses").select("*").order("analyzed_at", { ascending: false }),
+        supabase.from("hives").select("apiary_id,status").eq("status", "active"),
       ]);
       if (apiaries.error) throw apiaries.error;
       if (analyses.error) throw analyses.error;
+      const hiveCounts = new Map<string, number>();
+      for (const h of (hives.data ?? []) as { apiary_id: string }[]) {
+        hiveCounts.set(h.apiary_id, (hiveCounts.get(h.apiary_id) ?? 0) + 1);
+      }
       return {
         apiaries: (apiaries.data ?? []) as Apiary[],
         analyses: (analyses.data ?? []) as ForageAnalysis[],
+        hiveCounts,
       };
     },
   });
@@ -59,7 +65,8 @@ function DashboardPage() {
 
   const apiaries = data?.apiaries ?? [];
   const analyses = data?.analyses ?? [];
-  const totalHives = apiaries.reduce((s, a) => s + (a.current_hives || 0), 0);
+  const hiveCounts = data?.hiveCounts ?? new Map<string, number>();
+  const totalHives = apiaries.reduce((s, a) => s + (hiveCounts.get(a.id) ?? 0), 0);
   const latestByApiary = new Map<string, ForageAnalysis>();
   for (const a of analyses) if (!latestByApiary.has(a.apiary_id)) latestByApiary.set(a.apiary_id, a);
   const totalSafe = [...latestByApiary.values()].reduce((s, a) => s + (a.safe_hive_capacity || 0), 0);
@@ -111,7 +118,8 @@ function DashboardPage() {
               {apiaries.map((a) => {
                 const an = latestByApiary.get(a.id);
                 const safe = an?.safe_hive_capacity ?? 0;
-                const pct = safe > 0 ? Math.min(100, Math.round((a.current_hives / safe) * 100)) : 0;
+                const activeHives = hiveCounts.get(a.id) ?? 0;
+                const pct = safe > 0 ? Math.min(100, Math.round((activeHives / safe) * 100)) : 0;
                 return (
                   <li key={a.id}>
                     <Link
@@ -126,7 +134,7 @@ function DashboardPage() {
                           {[a.city, a.state].filter(Boolean).join(" / ") || "Sem localização"}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {a.current_hives} colmeias
+                          {activeHives} colmeias
                           {an ? ` · capacidade segura ${safe}` : " · sem análise"}
                         </p>
                       </div>
