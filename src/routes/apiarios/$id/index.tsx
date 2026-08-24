@@ -174,6 +174,12 @@ function ApiaryDetailPage() {
               Analisar pasto apícola
             </Link>
           </Button>
+          <Button asChild variant="outline" className="h-12 w-full font-semibold">
+            <Link to="/apiarios/$id/economia" params={{ id }}>
+              Financeiro — gestão econômica
+            </Link>
+          </Button>
+
 
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-2xl bg-card p-4 text-center shadow-sm">
