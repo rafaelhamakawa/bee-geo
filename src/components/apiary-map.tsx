@@ -7,8 +7,8 @@ import { FLIGHT_RADIUS_M } from "@/lib/geoapis";
 export type NearbyApiary = { latitude: number; longitude: number; name?: string | null };
 
 
-function circleGeoJSON(lat: number, lng: number, radiusM: number) {
-  const points = 96;
+function circleRing(lat: number, lng: number, radiusM: number): [number, number][] {
+  const points = 128;
   const coords: [number, number][] = [];
   const distX = radiusM / (111320 * Math.cos((lat * Math.PI) / 180));
   const distY = radiusM / 110574;
@@ -17,12 +17,50 @@ function circleGeoJSON(lat: number, lng: number, radiusM: number) {
     coords.push([lng + distX * Math.cos(theta), lat + distY * Math.sin(theta)]);
   }
   coords.push(coords[0]!);
+  return coords;
+}
+
+function circleGeoJSON(lat: number, lng: number, radiusM: number) {
   return {
     type: "Feature" as const,
     properties: {},
-    geometry: { type: "Polygon" as const, coordinates: [coords] },
+    geometry: { type: "Polygon" as const, coordinates: [circleRing(lat, lng, radiusM)] },
   };
 }
+
+// Círculos dos apiários vizinhos + área de sobreposição com o círculo principal.
+function neighborsGeoJSON(
+  lat: number,
+  lng: number,
+  radiusM: number,
+  nearby: NearbyApiary[],
+): GeoJSON.FeatureCollection {
+  const main = [[circleRing(lat, lng, radiusM)]] as any;
+  const features: GeoJSON.Feature[] = [];
+  for (const n of nearby) {
+    if (n.latitude == null || n.longitude == null) continue;
+    const ring = circleRing(n.latitude, n.longitude, radiusM);
+    features.push({
+      type: "Feature",
+      properties: { kind: "neighbor", name: n.name ?? null },
+      geometry: { type: "Polygon", coordinates: [ring] },
+    });
+    try {
+      const inter = polygonClipping.intersection(main, [[ring]] as any);
+      if (inter.length) {
+        features.push({
+          type: "Feature",
+          properties: { kind: "overlap" },
+          geometry: { type: "MultiPolygon", coordinates: inter as any },
+        });
+      }
+    } catch {
+      // ignora falha de interseção
+    }
+  }
+  return { type: "FeatureCollection", features };
+}
+
 
 const SATELLITE_STYLE: maplibregl.StyleSpecification = {
   version: 8,
