@@ -26,6 +26,7 @@ import { Route as ApiariosIdIndexRouteImport } from './routes/apiarios/$id/index
 import { Route as ApiariosIdAnaliseRouteImport } from './routes/apiarios/$id/analise'
 import { Route as ApiariosIdEditarRouteImport } from './routes/apiarios/$id/editar'
 import { Route as ApiariosIdLocalizacaoRouteImport } from './routes/apiarios/$id/localizacao'
+import { Route as ApiariosIdColmeiasHiveIdRouteImport } from './routes/apiarios/$id/colmeias/$hiveId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -112,6 +113,12 @@ const ApiariosIdLocalizacaoRoute = ApiariosIdLocalizacaoRouteImport.update({
   path: '/apiarios/$id/localizacao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiariosIdColmeiasHiveIdRoute =
+  ApiariosIdColmeiasHiveIdRouteImport.update({
+    id: '/apiarios/$id/colmeias/$hiveId',
+    path: '/apiarios/$id/colmeias/$hiveId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
   '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
   '/apiarios/$id/': typeof ApiariosIdIndexRoute
+  '/apiarios/$id/colmeias/$hiveId': typeof ApiariosIdColmeiasHiveIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,6 +158,7 @@ export interface FileRoutesByTo {
   '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
   '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
   '/apiarios/$id': typeof ApiariosIdIndexRoute
+  '/apiarios/$id/colmeias/$hiveId': typeof ApiariosIdColmeiasHiveIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,6 +179,7 @@ export interface FileRoutesById {
   '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
   '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
   '/apiarios/$id/': typeof ApiariosIdIndexRoute
+  '/apiarios/$id/colmeias/$hiveId': typeof ApiariosIdColmeiasHiveIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/apiarios/$id/editar'
     | '/apiarios/$id/localizacao'
     | '/apiarios/$id/'
+    | '/apiarios/$id/colmeias/$hiveId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/apiarios/$id/editar'
     | '/apiarios/$id/localizacao'
     | '/apiarios/$id'
+    | '/apiarios/$id/colmeias/$hiveId'
   id:
     | '__root__'
     | '/'
@@ -229,6 +241,7 @@ export interface FileRouteTypes {
     | '/apiarios/$id/editar'
     | '/apiarios/$id/localizacao'
     | '/apiarios/$id/'
+    | '/apiarios/$id/colmeias/$hiveId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -249,6 +262,7 @@ export interface RootRouteChildren {
   ApiariosIdEditarRoute: typeof ApiariosIdEditarRoute
   ApiariosIdLocalizacaoRoute: typeof ApiariosIdLocalizacaoRoute
   ApiariosIdIndexRoute: typeof ApiariosIdIndexRoute
+  ApiariosIdColmeiasHiveIdRoute: typeof ApiariosIdColmeiasHiveIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -372,6 +386,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiariosIdLocalizacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apiarios/$id/colmeias/$hiveId': {
+      id: '/apiarios/$id/colmeias/$hiveId'
+      path: '/apiarios/$id/colmeias/$hiveId'
+      fullPath: '/apiarios/$id/colmeias/$hiveId'
+      preLoaderRoute: typeof ApiariosIdColmeiasHiveIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -393,6 +414,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiariosIdEditarRoute: ApiariosIdEditarRoute,
   ApiariosIdLocalizacaoRoute: ApiariosIdLocalizacaoRoute,
   ApiariosIdIndexRoute: ApiariosIdIndexRoute,
+  ApiariosIdColmeiasHiveIdRoute: ApiariosIdColmeiasHiveIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

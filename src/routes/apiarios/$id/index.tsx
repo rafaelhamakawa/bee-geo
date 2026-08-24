@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { lazy, Suspense } from "react";
 import { MapPin, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
@@ -10,10 +10,9 @@ import type { Apiary, ForageAnalysis } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { HivesTab, useHives } from "@/components/hives-tab";
 import { formatCoord, fmtHa, fmtPct } from "@/lib/geoapis";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,9 +46,6 @@ function ApiaryDetailPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const qc = useQueryClient();
-  const [hives, setHives] = useState<number | null>(null);
-  const [savingHives, setSavingHives] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["apiary", id, user?.id],
@@ -68,6 +64,8 @@ function ApiaryDetailPage() {
       return { apiary: a.data as Apiary | null, analyses: (an.data ?? []) as ForageAnalysis[] };
     },
   });
+
+  const { data: hives } = useHives(id);
 
   if (isLoading) {
     return (
@@ -90,21 +88,9 @@ function ApiaryDetailPage() {
   const analyses = data.analyses;
   const latest = analyses[0];
   const safe = latest?.safe_hive_capacity ?? 0;
-  const current = hives ?? a.current_hives;
-  const occupancy = safe > 0 ? Math.min(100, Math.round((current / safe) * 100)) : 0;
+  // Colmeias instaladas = contagem das colmeias ativas do apiário.
+  const current = (hives ?? []).filter((h) => h.status === "active").length;
 
-  async function saveHives() {
-    setSavingHives(true);
-    const { error } = await supabase
-      .from("apiaries")
-      .update({ current_hives: current })
-      .eq("id", id);
-    setSavingHives(false);
-    if (error) { toast.error("Erro ao salvar as colmeias."); return; }
-    toast.success("Colmeias atualizadas.");
-    qc.invalidateQueries({ queryKey: ["apiary", id] });
-    qc.invalidateQueries({ queryKey: ["dashboard"] });
-  }
 
   async function remove() {
     const { error } = await supabase.from("apiaries").delete().eq("id", id);
@@ -212,30 +198,9 @@ function ApiaryDetailPage() {
         </TabsContent>
 
         <TabsContent value="hives" className="space-y-4">
-          <div className="rounded-2xl bg-card p-4 shadow-sm">
-            <Label htmlFor="hivecount">Colmeias instaladas</Label>
-            <Input
-              id="hivecount"
-              type="number"
-              min={0}
-              value={current}
-              onChange={(e) => setHives(Number(e.target.value))}
-              className="mt-2 h-12"
-            />
-            <div className="mt-4">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Ocupação</span>
-                <span>
-                  {current} / {safe || "—"}
-                </span>
-              </div>
-              <Progress value={occupancy} className="mt-2" />
-            </div>
-            <Button onClick={saveHives} disabled={savingHives} className="mt-4 h-12 w-full">
-              {savingHives ? "Salvando…" : "Salvar"}
-            </Button>
-          </div>
+          <HivesTab apiary={a} safeCapacity={safe} />
         </TabsContent>
+
 
         <TabsContent value="analyses" className="space-y-3">
           {analyses.length === 0 ? (
