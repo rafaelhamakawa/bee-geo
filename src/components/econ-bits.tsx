@@ -11,7 +11,7 @@ export function StatCard({
   icon?: ReactNode;
   label: string;
   value: string;
-  hint?: string;
+  hint?: string | undefined;
   tone?: "primary" | "honey" | "muted";
 }) {
   const toneText =
