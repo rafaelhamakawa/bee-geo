@@ -24,6 +24,7 @@ import { Route as ApiariosIndexRouteImport } from './routes/apiarios/index'
 import { Route as ApiariosNovoRouteImport } from './routes/apiarios/novo'
 import { Route as ApiariosIdIndexRouteImport } from './routes/apiarios/$id/index'
 import { Route as ApiariosIdAnaliseRouteImport } from './routes/apiarios/$id/analise'
+import { Route as ApiariosIdEconomiaRouteImport } from './routes/apiarios/$id/economia'
 import { Route as ApiariosIdEditarRouteImport } from './routes/apiarios/$id/editar'
 import { Route as ApiariosIdLocalizacaoRouteImport } from './routes/apiarios/$id/localizacao'
 import { Route as ApiariosIdColmeiasHiveIdRouteImport } from './routes/apiarios/$id/colmeias/$hiveId'
@@ -103,6 +104,11 @@ const ApiariosIdAnaliseRoute = ApiariosIdAnaliseRouteImport.update({
   path: '/apiarios/$id/analise',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiariosIdEconomiaRoute = ApiariosIdEconomiaRouteImport.update({
+  id: '/apiarios/$id/economia',
+  path: '/apiarios/$id/economia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiariosIdEditarRoute = ApiariosIdEditarRouteImport.update({
   id: '/apiarios/$id/editar',
   path: '/apiarios/$id/editar',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/analises/': typeof AnalisesIndexRoute
   '/apiarios/': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
+  '/apiarios/$id/economia': typeof ApiariosIdEconomiaRoute
   '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
   '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
   '/apiarios/$id/': typeof ApiariosIdIndexRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/analises': typeof AnalisesIndexRoute
   '/apiarios': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
+  '/apiarios/$id/economia': typeof ApiariosIdEconomiaRoute
   '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
   '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
   '/apiarios/$id': typeof ApiariosIdIndexRoute
@@ -176,6 +184,7 @@ export interface FileRoutesById {
   '/analises/': typeof AnalisesIndexRoute
   '/apiarios/': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
+  '/apiarios/$id/economia': typeof ApiariosIdEconomiaRoute
   '/apiarios/$id/editar': typeof ApiariosIdEditarRoute
   '/apiarios/$id/localizacao': typeof ApiariosIdLocalizacaoRoute
   '/apiarios/$id/': typeof ApiariosIdIndexRoute
@@ -198,6 +207,7 @@ export interface FileRouteTypes {
     | '/analises/'
     | '/apiarios/'
     | '/apiarios/$id/analise'
+    | '/apiarios/$id/economia'
     | '/apiarios/$id/editar'
     | '/apiarios/$id/localizacao'
     | '/apiarios/$id/'
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/analises'
     | '/apiarios'
     | '/apiarios/$id/analise'
+    | '/apiarios/$id/economia'
     | '/apiarios/$id/editar'
     | '/apiarios/$id/localizacao'
     | '/apiarios/$id'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/analises/'
     | '/apiarios/'
     | '/apiarios/$id/analise'
+    | '/apiarios/$id/economia'
     | '/apiarios/$id/editar'
     | '/apiarios/$id/localizacao'
     | '/apiarios/$id/'
@@ -259,6 +271,7 @@ export interface RootRouteChildren {
   AnalisesIndexRoute: typeof AnalisesIndexRoute
   ApiariosIndexRoute: typeof ApiariosIndexRoute
   ApiariosIdAnaliseRoute: typeof ApiariosIdAnaliseRoute
+  ApiariosIdEconomiaRoute: typeof ApiariosIdEconomiaRoute
   ApiariosIdEditarRoute: typeof ApiariosIdEditarRoute
   ApiariosIdLocalizacaoRoute: typeof ApiariosIdLocalizacaoRoute
   ApiariosIdIndexRoute: typeof ApiariosIdIndexRoute
@@ -372,6 +385,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiariosIdAnaliseRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/apiarios/$id/economia': {
+      id: '/apiarios/$id/economia'
+      path: '/apiarios/$id/economia'
+      fullPath: '/apiarios/$id/economia'
+      preLoaderRoute: typeof ApiariosIdEconomiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/apiarios/$id/editar': {
       id: '/apiarios/$id/editar'
       path: '/apiarios/$id/editar'
@@ -411,6 +431,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnalisesIndexRoute: AnalisesIndexRoute,
   ApiariosIndexRoute: ApiariosIndexRoute,
   ApiariosIdAnaliseRoute: ApiariosIdAnaliseRoute,
+  ApiariosIdEconomiaRoute: ApiariosIdEconomiaRoute,
   ApiariosIdEditarRoute: ApiariosIdEditarRoute,
   ApiariosIdLocalizacaoRoute: ApiariosIdLocalizacaoRoute,
   ApiariosIdIndexRoute: ApiariosIdIndexRoute,
