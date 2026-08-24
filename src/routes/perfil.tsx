@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LogOut, FileText, ShieldCheck } from "lucide-react";
+import { LogOut, FileText, ShieldCheck, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, initialsOf } from "@/components/app-shell";
 import { supabase } from "@/integrations/supabase/client";
