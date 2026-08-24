@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { lazy, Suspense, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { lazy, Suspense } from "react";
 import { MapPin, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/app-shell";
@@ -10,10 +10,9 @@ import type { Apiary, ForageAnalysis } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { HivesTab, useHives } from "@/components/hives-tab";
 import { formatCoord, fmtHa, fmtPct } from "@/lib/geoapis";
+
 import {
   AlertDialog,
   AlertDialogAction,
