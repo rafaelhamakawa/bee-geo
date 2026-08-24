@@ -151,6 +151,9 @@ function ProfilePage() {
           </div>
 
           <div className="mt-4 divide-y divide-border rounded-2xl bg-card shadow-sm">
+            <Link to="/admin/cotacoes" className="flex items-center gap-3 p-4 text-sm">
+              <Coins className="h-4 w-4 text-primary" /> Cotações do mel (admin)
+            </Link>
             <Link to="/privacidade" className="flex items-center gap-3 p-4 text-sm">
               <ShieldCheck className="h-4 w-4 text-primary" /> Política de Privacidade
             </Link>
@@ -158,6 +161,7 @@ function ProfilePage() {
               <FileText className="h-4 w-4 text-primary" /> Termos de Uso
             </Link>
           </div>
+
 
           <Button
             variant="outline"
