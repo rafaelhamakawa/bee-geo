@@ -34,9 +34,9 @@ function neighborsGeoJSON(
   lng: number,
   radiusM: number,
   nearby: NearbyApiary[],
-): GeoJSON.FeatureCollection {
+): maplibregl.GeoJSONSourceSpecification["data"] {
   const main = [[circleRing(lat, lng, radiusM)]] as any;
-  const features: GeoJSON.Feature[] = [];
+  const features: any[] = [];
   for (const n of nearby) {
     if (n.latitude == null || n.longitude == null) continue;
     const ring = circleRing(n.latitude, n.longitude, radiusM);
