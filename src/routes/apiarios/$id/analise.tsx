@@ -90,8 +90,33 @@ function AnalysisPage() {
   });
 
   const apiary = data ?? null;
+
+  // Apiários vizinhos cujo raio de 1,5 km se sobrepõe ao deste apiário (< 3 km de distância).
+  const { data: nearby } = useQuery({
+    queryKey: ["apiary-nearby", id, user?.id],
+    enabled: !!user && apiary?.latitude != null && apiary?.longitude != null,
+    queryFn: async () => {
+      const { data: all, error } = await supabase
+        .from("apiaries")
+        .select("id,name,latitude,longitude")
+        .neq("id", id);
+      if (error) throw error;
+      const lat0 = apiary!.latitude!;
+      const lng0 = apiary!.longitude!;
+      return ((all ?? []) as Pick<Apiary, "id" | "name" | "latitude" | "longitude">[])
+        .filter((a) => a.latitude != null && a.longitude != null)
+        .filter((a) => {
+          const dy = (a.latitude! - lat0) * 110574;
+          const dx = (a.longitude! - lng0) * 111320 * Math.cos((lat0 * Math.PI) / 180);
+          return Math.hypot(dx, dy) < 3000;
+        })
+        .map((a) => ({ latitude: a.latitude!, longitude: a.longitude!, name: a.name }));
+    },
+  });
+
   const baseMultiplier = biomeMultiplier(apiary?.biome);
   const list = rows ?? [newRow(1, baseMultiplier)];
+
 
   const totals = useMemo(
     () => computeAnalysis(list, apiary?.current_hives ?? 0),
