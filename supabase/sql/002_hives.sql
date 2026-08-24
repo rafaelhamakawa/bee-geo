@@ -1,6 +1,57 @@
 -- GeoApis — módulo de gestão de colmeias (aditivo: não altera nem remove tabelas existentes)
 
 -- =========================
+-- Pré-requisitos: papéis de usuário e has_role()
+-- (idempotente — não faz nada se já existirem)
+-- =========================
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'app_role') then
+    create type public.app_role as enum ('admin','tecnico','apicultor');
+  end if;
+end $$;
+
+create table if not exists public.user_roles (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role public.app_role not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, role)
+);
+
+grant select on public.user_roles to authenticated;
+grant all on public.user_roles to service_role;
+
+alter table public.user_roles enable row level security;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'user_roles'
+      and policyname = 'user_roles_select_own'
+  ) then
+    create policy "user_roles_select_own" on public.user_roles
+      for select to authenticated using (user_id = auth.uid());
+  end if;
+end $$;
+
+create or replace function public.has_role(_user_id uuid, _role public.app_role)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.user_roles
+    where user_id = _user_id and role = _role
+  )
+$$;
+
+
+
+-- =========================
 -- Tabela: hives
 -- =========================
 create table if not exists public.hives (
