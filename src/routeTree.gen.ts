@@ -18,6 +18,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as AdminCotacoesRouteImport } from './routes/admin/cotacoes'
 import { Route as AnalisesIndexRouteImport } from './routes/analises/index'
 import { Route as AnalisesAnalysisIdRouteImport } from './routes/analises/$analysisId'
 import { Route as ApiariosIndexRouteImport } from './routes/apiarios/index'
@@ -72,6 +73,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
+  id: '/admin/cotacoes',
+  path: '/admin/cotacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnalisesIndexRoute = AnalisesIndexRouteImport.update({
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
+  '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
   '/analises/': typeof AnalisesIndexRoute
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
+  '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
   '/analises': typeof AnalisesIndexRoute
@@ -179,6 +187,7 @@ export interface FileRoutesById {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
+  '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
   '/analises/': typeof AnalisesIndexRoute
@@ -202,6 +211,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/termos'
+    | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
     | '/analises/'
@@ -223,6 +233,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/termos'
+    | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
     | '/analises'
@@ -244,6 +255,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/termos'
+    | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
     | '/analises/'
@@ -266,6 +278,7 @@ export interface RootRouteChildren {
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   TermosRoute: typeof TermosRoute
+  AdminCotacoesRoute: typeof AdminCotacoesRoute
   AnalisesAnalysisIdRoute: typeof AnalisesAnalysisIdRoute
   ApiariosNovoRoute: typeof ApiariosNovoRoute
   AnalisesIndexRoute: typeof AnalisesIndexRoute
@@ -341,6 +354,13 @@ declare module '@tanstack/react-router' {
       path: '/termos'
       fullPath: '/termos'
       preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/cotacoes': {
+      id: '/admin/cotacoes'
+      path: '/admin/cotacoes'
+      fullPath: '/admin/cotacoes'
+      preLoaderRoute: typeof AdminCotacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/analises/': {
@@ -426,6 +446,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   TermosRoute: TermosRoute,
+  AdminCotacoesRoute: AdminCotacoesRoute,
   AnalisesAnalysisIdRoute: AnalisesAnalysisIdRoute,
   ApiariosNovoRoute: ApiariosNovoRoute,
   AnalisesIndexRoute: AnalisesIndexRoute,

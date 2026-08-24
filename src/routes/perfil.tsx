@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LogOut, FileText, ShieldCheck } from "lucide-react";
+import { LogOut, FileText, ShieldCheck, Coins } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, initialsOf } from "@/components/app-shell";
 import { supabase } from "@/integrations/supabase/client";
@@ -151,6 +151,9 @@ function ProfilePage() {
           </div>
 
           <div className="mt-4 divide-y divide-border rounded-2xl bg-card shadow-sm">
+            <Link to="/admin/cotacoes" className="flex items-center gap-3 p-4 text-sm">
+              <Coins className="h-4 w-4 text-primary" /> Cotações do mel (admin)
+            </Link>
             <Link to="/privacidade" className="flex items-center gap-3 p-4 text-sm">
               <ShieldCheck className="h-4 w-4 text-primary" /> Política de Privacidade
             </Link>
@@ -158,6 +161,7 @@ function ProfilePage() {
               <FileText className="h-4 w-4 text-primary" /> Termos de Uso
             </Link>
           </div>
+
 
           <Button
             variant="outline"
