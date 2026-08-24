@@ -123,13 +123,13 @@ function FinancePage() {
         <Skeleton className="mt-4 h-32 w-full rounded-2xl" />
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <StatCard label="Receita bruta" value={brl(revenue)} icon={PiggyBank} />
-          <StatCard label="Custos" value={brl(costs)} icon={Wallet} tone="honey" />
-          <StatCard label="Lucro líquido" value={brl(profit)} icon={TrendingUp} />
+          <StatCard label="Receita bruta" value={brl(revenue)} icon={<PiggyBank className="h-5 w-5" />} />
+          <StatCard label="Custos" value={brl(costs)} icon={<Wallet className="h-5 w-5" />} tone="honey" />
+          <StatCard label="Lucro líquido" value={brl(profit)} icon={<TrendingUp className="h-5 w-5" />} />
           <StatCard
             label="Margem líquida"
             value={margin == null ? "—" : pct(margin * 100)}
-            icon={Percent}
+            icon={<Percent className="h-5 w-5" />}
           />
         </div>
       )}
