@@ -90,8 +90,33 @@ function AnalysisPage() {
   });
 
   const apiary = data ?? null;
+
+  // Apiários vizinhos cujo raio de 1,5 km se sobrepõe ao deste apiário (< 3 km de distância).
+  const { data: nearby } = useQuery({
+    queryKey: ["apiary-nearby", id, user?.id],
+    enabled: !!user && apiary?.latitude != null && apiary?.longitude != null,
+    queryFn: async () => {
+      const { data: all, error } = await supabase
+        .from("apiaries")
+        .select("id,name,latitude,longitude")
+        .neq("id", id);
+      if (error) throw error;
+      const lat0 = apiary!.latitude!;
+      const lng0 = apiary!.longitude!;
+      return ((all ?? []) as Pick<Apiary, "id" | "name" | "latitude" | "longitude">[])
+        .filter((a) => a.latitude != null && a.longitude != null)
+        .filter((a) => {
+          const dy = (a.latitude! - lat0) * 110574;
+          const dx = (a.longitude! - lng0) * 111320 * Math.cos((lat0 * Math.PI) / 180);
+          return Math.hypot(dx, dy) < 3000;
+        })
+        .map((a) => ({ latitude: a.latitude!, longitude: a.longitude!, name: a.name }));
+    },
+  });
+
   const baseMultiplier = biomeMultiplier(apiary?.biome);
   const list = rows ?? [newRow(1, baseMultiplier)];
+
 
   const totals = useMemo(
     () => computeAnalysis(list, apiary?.current_hives ?? 0),
@@ -279,12 +304,34 @@ function AnalysisPage() {
           <ApiaryMap
             latitude={apiary.latitude}
             longitude={apiary.longitude}
+            showCircle
+            nearby={nearby ?? []}
             className="h-64 w-full rounded-2xl"
             drawing={drawing}
             drawPoints={drawPoints}
             onDrawPoint={(lng, lat) => setDrawPoints((p) => [...p, [lng, lat]])}
           />
         </Suspense>
+
+        <div className="flex flex-wrap gap-3 rounded-2xl bg-card p-3 text-xs text-muted-foreground shadow-sm">
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-sm border border-foreground bg-honey/40" /> Raio de 1,5 km
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-sm border border-dashed border-foreground bg-honey/15" />{" "}
+            Apiário vizinho
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-sm bg-destructive/60" /> Área sobreposta
+          </span>
+        </div>
+        {nearby && nearby.length > 0 ? (
+          <p className="rounded-2xl bg-muted p-3 text-xs text-muted-foreground">
+            {nearby.length} apiário(s) próximo(s) com sobreposição de pasto: a capacidade real pode ser
+            menor devido à competição por néctar.
+          </p>
+        ) : null}
+
 
         <div className="rounded-2xl bg-card p-4 text-sm shadow-sm">
           <p className="font-semibold text-primary">Área de referência</p>
