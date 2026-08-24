@@ -304,12 +304,34 @@ function AnalysisPage() {
           <ApiaryMap
             latitude={apiary.latitude}
             longitude={apiary.longitude}
+            showCircle
+            nearby={nearby ?? []}
             className="h-64 w-full rounded-2xl"
             drawing={drawing}
             drawPoints={drawPoints}
             onDrawPoint={(lng, lat) => setDrawPoints((p) => [...p, [lng, lat]])}
           />
         </Suspense>
+
+        <div className="flex flex-wrap gap-3 rounded-2xl bg-card p-3 text-xs text-muted-foreground shadow-sm">
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-sm border border-foreground bg-honey/40" /> Raio de 1,5 km
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-sm border border-dashed border-foreground bg-honey/15" />{" "}
+            Apiário vizinho
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-sm bg-destructive/60" /> Área sobreposta
+          </span>
+        </div>
+        {nearby && nearby.length > 0 ? (
+          <p className="rounded-2xl bg-muted p-3 text-xs text-muted-foreground">
+            {nearby.length} apiário(s) próximo(s) com sobreposição de pasto: a capacidade real pode ser
+            menor devido à competição por néctar.
+          </p>
+        ) : null}
+
 
         <div className="rounded-2xl bg-card p-4 text-sm shadow-sm">
           <p className="font-semibold text-primary">Área de referência</p>
