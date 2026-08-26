@@ -199,7 +199,7 @@ export function queenMarkColor(value?: string | null): QueenMark | null {
   if (!value) return null;
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return null;
-  const lastDigit = d.getFullYear() % 10;
+  const lastDigit = d.getUTCFullYear() % 10;
   switch (lastDigit) {
     case 1:
     case 6:
