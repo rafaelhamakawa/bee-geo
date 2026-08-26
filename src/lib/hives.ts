@@ -184,3 +184,39 @@ export function nextHiveCode(existing: string[]) {
   }
   return `C-${String(max + 1).padStart(2, "0")}`;
 }
+
+export type QueenMark = {
+  color: string;
+  label: string;
+  border: string;
+  bg: string;
+  text: string;
+  dot: string;
+};
+
+/** Cor internacional de marcação da rainha a partir do último dígito do ano de nascimento. */
+export function queenMarkColor(value?: string | null): QueenMark | null {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  const lastDigit = d.getFullYear() % 10;
+  switch (lastDigit) {
+    case 1:
+    case 6:
+      return { color: "white", label: "Branca", border: "border-white", bg: "bg-white/10", text: "text-white", dot: "bg-white" };
+    case 2:
+    case 7:
+      return { color: "yellow", label: "Amarela", border: "border-yellow-400", bg: "bg-yellow-400/10", text: "text-yellow-400", dot: "bg-yellow-400" };
+    case 3:
+    case 8:
+      return { color: "red", label: "Vermelha", border: "border-red-500", bg: "bg-red-500/10", text: "text-red-500", dot: "bg-red-500" };
+    case 4:
+    case 9:
+      return { color: "green", label: "Verde", border: "border-green-500", bg: "bg-green-500/10", text: "text-green-500", dot: "bg-green-500" };
+    case 5:
+    case 0:
+      return { color: "blue", label: "Azul", border: "border-blue-500", bg: "bg-blue-500/10", text: "text-blue-500", dot: "bg-blue-500" };
+    default:
+      return null;
+  }
+}
