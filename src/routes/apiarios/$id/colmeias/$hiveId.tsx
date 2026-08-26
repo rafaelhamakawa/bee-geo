@@ -290,6 +290,7 @@ function HiveDetailPage() {
   const managements = data.managements;
   const last = managements[0];
   const alert = hiveAlert(hive);
+  const qMark = queenMarkColor(hive.queen_introduced_at);
   const purposes = hive.purposes ?? [];
   const timeline = showAll ? managements : managements.slice(0, 3);
 
