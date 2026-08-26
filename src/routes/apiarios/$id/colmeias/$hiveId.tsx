@@ -91,14 +91,16 @@ function Section({
   title,
   children,
   action,
+  className,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   children: React.ReactNode;
   action?: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="rounded-2xl bg-card p-4 shadow-sm">
+    <section className={cn("rounded-2xl bg-card p-4 shadow-sm", className)}>
       <div className="mb-3 flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-honey/15 text-primary">
           <Icon className="h-4 w-4" />
