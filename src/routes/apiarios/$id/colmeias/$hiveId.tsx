@@ -380,7 +380,21 @@ function HiveDetailPage() {
           </div>
         </section>
 
-        <Section icon={Crown} title="Origem e rainha">
+        const qMark = queenMarkColor(hive.queen_introduced_at);
+
+        <Section
+          icon={Crown}
+          title="Origem e rainha"
+          className={cn(qMark ? ["border-l-4", qMark.border, qMark.bg] : undefined)}
+          action={
+            qMark ? (
+              <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium", qMark.border, qMark.bg, qMark.text)}>
+                <span className={cn("h-2 w-2 rounded-full", qMark.dot)} />
+                Marcação {qMark.label.toLowerCase()}
+              </span>
+            ) : undefined
+          }
+        >
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Field label="Origem" value={originLabel(hive.origin)} />
             <Field label="Entrada no apiário" value={fmtDate(hive.introduced_at)} />
