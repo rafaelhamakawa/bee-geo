@@ -62,6 +62,7 @@ import {
   fmtDate,
   hiveAlert,
   originLabel,
+  queenMarkColor,
   toDateInput,
   type Hive,
   type HiveManagement,
@@ -90,14 +91,16 @@ function Section({
   title,
   children,
   action,
+  className,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   children: React.ReactNode;
   action?: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="rounded-2xl bg-card p-4 shadow-sm">
+    <section className={cn("rounded-2xl bg-card p-4 shadow-sm", className)}>
       <div className="mb-3 flex items-center gap-3">
         <span className="flex h-9 w-9 items-center justify-center rounded-full bg-honey/15 text-primary">
           <Icon className="h-4 w-4" />
@@ -287,6 +290,7 @@ function HiveDetailPage() {
   const managements = data.managements;
   const last = managements[0];
   const alert = hiveAlert(hive);
+  const qMark = queenMarkColor(hive.queen_introduced_at);
   const purposes = hive.purposes ?? [];
   const timeline = showAll ? managements : managements.slice(0, 3);
 
@@ -377,7 +381,19 @@ function HiveDetailPage() {
           </div>
         </section>
 
-        <Section icon={Crown} title="Origem e rainha">
+        <Section
+          icon={Crown}
+          title="Origem e rainha"
+          className={cn(qMark ? ["border-l-4", qMark.border, qMark.bg] : undefined)}
+          action={
+            qMark ? (
+              <span className={cn("inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium", qMark.border, qMark.bg, qMark.text)}>
+                <span className={cn("h-2 w-2 rounded-full", qMark.dot)} />
+                Marcação {qMark.label.toLowerCase()}
+              </span>
+            ) : undefined
+          }
+        >
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Field label="Origem" value={originLabel(hive.origin)} />
             <Field label="Entrada no apiário" value={fmtDate(hive.introduced_at)} />
