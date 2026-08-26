@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+title: Bee Geo
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Vianna"
+    given-names: "Rafael Alves"
+  - family-names: "Miossi"
+    given-names: "André Luiz Almeida"
+date-released: 2026-08-26
+url: "https://github.com/rafaelhamakawa/bee-geo"
+repository: "https://github.com/rafaelhamakawa/bee-geo"
+type: software
