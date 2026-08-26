@@ -381,8 +381,6 @@ function HiveDetailPage() {
           </div>
         </section>
 
-        const qMark = queenMarkColor(hive.queen_introduced_at);
-
         <Section
           icon={Crown}
           title="Origem e rainha"
