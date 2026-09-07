@@ -150,7 +150,30 @@ function ProfilePage() {
             </Button>
           </div>
 
+          {isAdmin ? (
+            <div className="mt-4 rounded-2xl bg-card p-4 shadow-sm">
+              <h2 className="font-bold text-primary">Modo de uso</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Você é administrador e pode alternar entre os modos quando quiser.
+              </p>
+              <Button
+                onClick={() => {
+                  setMode("adm");
+                  navigate({ to: "/admin" });
+                }}
+                className="mt-3 h-12 w-full font-semibold"
+              >
+                <Repeat className="mr-2 h-4 w-4" /> Entrar no modo administrador
+              </Button>
+            </div>
+          ) : null}
+
           <div className="mt-4 divide-y divide-border rounded-2xl bg-card shadow-sm">
+            {isAdmin ? (
+              <Link to="/admin" className="flex items-center gap-3 p-4 text-sm">
+                <ShieldCheck className="h-4 w-4 text-primary" /> Painel de administração
+              </Link>
+            ) : null}
             <Link to="/admin/cotacoes" className="flex items-center gap-3 p-4 text-sm">
               <Coins className="h-4 w-4 text-primary" /> Cotações do mel (admin)
             </Link>
