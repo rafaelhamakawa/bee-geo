@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LogOut, FileText, ShieldCheck, Coins } from "lucide-react";
+import { LogOut, FileText, ShieldCheck, Coins, Repeat } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, initialsOf } from "@/components/app-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin, setMode, clearMode } from "@/hooks/useAdmin";
 import type { Profile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/perfil")({
 function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isAdmin } = useIsAdmin();
   const [form, setForm] = useState<Omit<Profile, "id"> | null>(null);
   const [busy, setBusy] = useState(false);
 
