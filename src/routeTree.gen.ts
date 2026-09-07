@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as EscolherModoRouteImport } from './routes/escolher-modo'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PerfilRouteImport } from './routes/perfil'
@@ -44,6 +45,11 @@ const CadastroRoute = CadastroRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EscolherModoRoute = EscolherModoRouteImport.update({
+  id: '/escolher-modo',
+  path: '/escolher-modo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinanceiroRoute = FinanceiroRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/escolher-modo': typeof EscolherModoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/escolher-modo': typeof EscolherModoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/escolher-modo': typeof EscolherModoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/escolher-modo'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -237,6 +247,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/escolher-modo'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/escolher-modo'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -284,6 +296,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastroRoute: typeof CadastroRoute
   DashboardRoute: typeof DashboardRoute
+  EscolherModoRoute: typeof EscolherModoRoute
   FinanceiroRoute: typeof FinanceiroRoute
   LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escolher-modo': {
+      id: '/escolher-modo'
+      path: '/escolher-modo'
+      fullPath: '/escolher-modo'
+      preLoaderRoute: typeof EscolherModoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/financeiro': {
@@ -460,6 +480,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastroRoute: CadastroRoute,
   DashboardRoute: DashboardRoute,
+  EscolherModoRoute: EscolherModoRoute,
   FinanceiroRoute: FinanceiroRoute,
   LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
