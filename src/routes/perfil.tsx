@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { LogOut, FileText, ShieldCheck, Coins } from "lucide-react";
+import { LogOut, FileText, ShieldCheck, Coins, Repeat } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell, initialsOf } from "@/components/app-shell";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin, setMode, clearMode } from "@/hooks/useAdmin";
 import type { Profile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/perfil")({
 function ProfilePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isAdmin } = useIsAdmin();
   const [form, setForm] = useState<Omit<Profile, "id"> | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -70,6 +72,7 @@ function ProfilePage() {
   }
 
   async function signOut() {
+    clearMode();
     await supabase.auth.signOut();
     navigate({ to: "/login", replace: true });
   }
@@ -150,7 +153,30 @@ function ProfilePage() {
             </Button>
           </div>
 
+          {isAdmin ? (
+            <div className="mt-4 rounded-2xl bg-card p-4 shadow-sm">
+              <h2 className="font-bold text-primary">Modo de uso</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Você é administrador e pode alternar entre os modos quando quiser.
+              </p>
+              <Button
+                onClick={() => {
+                  setMode("adm");
+                  navigate({ to: "/admin" });
+                }}
+                className="mt-3 h-12 w-full font-semibold"
+              >
+                <Repeat className="mr-2 h-4 w-4" /> Entrar no modo administrador
+              </Button>
+            </div>
+          ) : null}
+
           <div className="mt-4 divide-y divide-border rounded-2xl bg-card shadow-sm">
+            {isAdmin ? (
+              <Link to="/admin" className="flex items-center gap-3 p-4 text-sm">
+                <ShieldCheck className="h-4 w-4 text-primary" /> Painel de administração
+              </Link>
+            ) : null}
             <Link to="/admin/cotacoes" className="flex items-center gap-3 p-4 text-sm">
               <Coins className="h-4 w-4 text-primary" /> Cotações do mel (admin)
             </Link>

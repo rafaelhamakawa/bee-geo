@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as EscolherModoRouteImport } from './routes/escolher-modo'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PerfilRouteImport } from './routes/perfil'
@@ -19,6 +20,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminCotacoesRouteImport } from './routes/admin/cotacoes'
 import { Route as AnalisesIndexRouteImport } from './routes/analises/index'
 import { Route as AnalisesAnalysisIdRouteImport } from './routes/analises/$analysisId'
@@ -44,6 +46,11 @@ const CadastroRoute = CadastroRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EscolherModoRoute = EscolherModoRouteImport.update({
+  id: '/escolher-modo',
+  path: '/escolher-modo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinanceiroRoute = FinanceiroRouteImport.update({
@@ -79,6 +86,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
@@ -142,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/escolher-modo': typeof EscolherModoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -152,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
+  '/admin/': typeof AdminIndexRoute
   '/analises/': typeof AnalisesIndexRoute
   '/apiarios/': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
@@ -165,6 +179,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/escolher-modo': typeof EscolherModoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -175,6 +190,7 @@ export interface FileRoutesByTo {
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
+  '/admin': typeof AdminIndexRoute
   '/analises': typeof AnalisesIndexRoute
   '/apiarios': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
@@ -189,6 +205,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/escolher-modo': typeof EscolherModoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -199,6 +216,7 @@ export interface FileRoutesById {
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
+  '/admin/': typeof AdminIndexRoute
   '/analises/': typeof AnalisesIndexRoute
   '/apiarios/': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
@@ -214,6 +232,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/escolher-modo'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -224,6 +243,7 @@ export interface FileRouteTypes {
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
+    | '/admin/'
     | '/analises/'
     | '/apiarios/'
     | '/apiarios/$id/analise'
@@ -237,6 +257,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/escolher-modo'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -247,6 +268,7 @@ export interface FileRouteTypes {
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
+    | '/admin'
     | '/analises'
     | '/apiarios'
     | '/apiarios/$id/analise'
@@ -260,6 +282,7 @@ export interface FileRouteTypes {
     | '/'
     | '/cadastro'
     | '/dashboard'
+    | '/escolher-modo'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -270,6 +293,7 @@ export interface FileRouteTypes {
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
+    | '/admin/'
     | '/analises/'
     | '/apiarios/'
     | '/apiarios/$id/analise'
@@ -284,6 +308,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CadastroRoute: typeof CadastroRoute
   DashboardRoute: typeof DashboardRoute
+  EscolherModoRoute: typeof EscolherModoRoute
   FinanceiroRoute: typeof FinanceiroRoute
   LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
@@ -294,6 +319,7 @@ export interface RootRouteChildren {
   AdminCotacoesRoute: typeof AdminCotacoesRoute
   AnalisesAnalysisIdRoute: typeof AnalisesAnalysisIdRoute
   ApiariosNovoRoute: typeof ApiariosNovoRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   AnalisesIndexRoute: typeof AnalisesIndexRoute
   ApiariosIndexRoute: typeof ApiariosIndexRoute
   ApiariosIdAnaliseRoute: typeof ApiariosIdAnaliseRoute
@@ -325,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/escolher-modo': {
+      id: '/escolher-modo'
+      path: '/escolher-modo'
+      fullPath: '/escolher-modo'
+      preLoaderRoute: typeof EscolherModoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/financeiro': {
@@ -374,6 +407,13 @@ declare module '@tanstack/react-router' {
       path: '/termos'
       fullPath: '/termos'
       preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/cotacoes': {
@@ -460,6 +500,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CadastroRoute: CadastroRoute,
   DashboardRoute: DashboardRoute,
+  EscolherModoRoute: EscolherModoRoute,
   FinanceiroRoute: FinanceiroRoute,
   LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
@@ -470,6 +511,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminCotacoesRoute: AdminCotacoesRoute,
   AnalisesAnalysisIdRoute: AnalisesAnalysisIdRoute,
   ApiariosNovoRoute: ApiariosNovoRoute,
+  AdminIndexRoute: AdminIndexRoute,
   AnalisesIndexRoute: AnalisesIndexRoute,
   ApiariosIndexRoute: ApiariosIndexRoute,
   ApiariosIdAnaliseRoute: ApiariosIdAnaliseRoute,
