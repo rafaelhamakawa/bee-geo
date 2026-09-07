@@ -20,6 +20,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminCotacoesRouteImport } from './routes/admin/cotacoes'
 import { Route as AnalisesIndexRouteImport } from './routes/analises/index'
 import { Route as AnalisesAnalysisIdRouteImport } from './routes/analises/$analysisId'
@@ -85,6 +86,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminCotacoesRoute = AdminCotacoesRouteImport.update({
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
+  '/admin/': typeof AdminIndexRoute
   '/analises/': typeof AnalisesIndexRoute
   '/apiarios/': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
+  '/admin': typeof AdminIndexRoute
   '/analises': typeof AnalisesIndexRoute
   '/apiarios': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
+  '/admin/': typeof AdminIndexRoute
   '/analises/': typeof AnalisesIndexRoute
   '/apiarios/': typeof ApiariosIndexRoute
   '/apiarios/$id/analise': typeof ApiariosIdAnaliseRoute
@@ -234,6 +243,7 @@ export interface FileRouteTypes {
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
+    | '/admin/'
     | '/analises/'
     | '/apiarios/'
     | '/apiarios/$id/analise'
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
+    | '/admin'
     | '/analises'
     | '/apiarios'
     | '/apiarios/$id/analise'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
+    | '/admin/'
     | '/analises/'
     | '/apiarios/'
     | '/apiarios/$id/analise'
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   AdminCotacoesRoute: typeof AdminCotacoesRoute
   AnalisesAnalysisIdRoute: typeof AnalisesAnalysisIdRoute
   ApiariosNovoRoute: typeof ApiariosNovoRoute
+  AdminIndexRoute: typeof AdminIndexRoute
   AnalisesIndexRoute: typeof AnalisesIndexRoute
   ApiariosIndexRoute: typeof ApiariosIndexRoute
   ApiariosIdAnaliseRoute: typeof ApiariosIdAnaliseRoute
@@ -394,6 +407,13 @@ declare module '@tanstack/react-router' {
       path: '/termos'
       fullPath: '/termos'
       preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/cotacoes': {
@@ -491,6 +511,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminCotacoesRoute: AdminCotacoesRoute,
   AnalisesAnalysisIdRoute: AnalisesAnalysisIdRoute,
   ApiariosNovoRoute: ApiariosNovoRoute,
+  AdminIndexRoute: AdminIndexRoute,
   AnalisesIndexRoute: AnalisesIndexRoute,
   ApiariosIndexRoute: ApiariosIndexRoute,
   ApiariosIdAnaliseRoute: ApiariosIdAnaliseRoute,

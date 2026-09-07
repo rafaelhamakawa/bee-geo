@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { authErrorMessage, useAuth } from "@/hooks/useAuth";
+import { checkIsAdmin, clearMode, setMode } from "@/hooks/useAdmin";
 import { GeoApisLogo } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,12 +38,23 @@ function LoginPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
-    setBusy(false);
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
     if (error) {
+      setBusy(false);
       toast.error(authErrorMessage(error.message));
       return;
     }
+    const admin = data.user ? await checkIsAdmin(data.user.id) : false;
+    setBusy(false);
+    if (admin) {
+      clearMode();
+      navigate({ to: "/escolher-modo", replace: true });
+      return;
+    }
+    setMode("apicultor");
     navigate({ to: "/dashboard", replace: true });
   }
 
