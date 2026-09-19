@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HivesTab, useHives } from "@/components/hives-tab";
+import { BaitBoxesTab } from "@/components/bait-boxes-tab";
 import { formatCoord, fmtHa, fmtPct } from "@/lib/geoapis";
 
 import {
