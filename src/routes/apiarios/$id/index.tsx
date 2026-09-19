@@ -146,6 +146,9 @@ function ApiaryDetailPage() {
           <TabsTrigger value="hives" className="flex-1">
             Colmeias
           </TabsTrigger>
+          <TabsTrigger value="baits" className="flex-1">
+            Iscas
+          </TabsTrigger>
           <TabsTrigger value="analyses" className="flex-1">
             Análises
           </TabsTrigger>
