@@ -210,6 +210,10 @@ function ApiaryDetailPage() {
           <HivesTab apiary={a} safeCapacity={safe} />
         </TabsContent>
 
+        <TabsContent value="baits" className="space-y-4">
+          <BaitBoxesTab apiary={a} />
+        </TabsContent>
+
 
         <TabsContent value="analyses" className="space-y-3">
           {analyses.length === 0 ? (
