@@ -77,6 +77,13 @@ const SATELLITE_STYLE: maplibregl.StyleSpecification = {
   layers: [{ id: "esri", type: "raster", source: "esri" }],
 };
 
+export type ExtraMarker = {
+  latitude: number;
+  longitude: number;
+  color?: string;
+  title?: string;
+};
+
 export default function ApiaryMap({
   latitude,
   longitude,
@@ -88,6 +95,8 @@ export default function ApiaryMap({
   drawPoints,
   onDrawPoint,
   nearby,
+  markers,
+  onMapClick,
 }: {
   latitude: number;
   longitude: number;
@@ -99,6 +108,8 @@ export default function ApiaryMap({
   drawPoints?: [number, number][];
   onDrawPoint?: (lng: number, lat: number) => void;
   nearby?: NearbyApiary[];
+  markers?: ExtraMarker[];
+  onMapClick?: (lat: number, lng: number) => void;
 }) {
   const container = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
