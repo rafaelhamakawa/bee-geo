@@ -233,6 +233,10 @@ export default function ApiaryMap({
           onDrawPointRef.current?.(e.lngLat.lng, e.lngLat.lat);
           return;
         }
+        if (onMapClickRef.current) {
+          onMapClickRef.current(e.lngLat.lat, e.lngLat.lng);
+          return;
+        }
         if (draggable) {
           marker.setLngLat(e.lngLat);
           onMove?.(e.lngLat.lat, e.lngLat.lng);
