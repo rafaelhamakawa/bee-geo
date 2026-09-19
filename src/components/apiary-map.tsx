@@ -302,6 +302,26 @@ export default function ApiaryMap({
     else map.once("load", apply);
   }, [drawPoints]);
 
+  // Marcadores extras (posição do apicultor, caixas isca…)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    for (const m of extraMarkersRef.current) m.remove();
+    extraMarkersRef.current = [];
+    for (const m of markers ?? []) {
+      if (m.latitude == null || m.longitude == null) continue;
+      const mk = new maplibregl.Marker({ color: m.color ?? "#C1121F" })
+        .setLngLat([m.longitude, m.latitude]);
+      if (m.title) mk.setPopup(new maplibregl.Popup({ offset: 12 }).setText(m.title));
+      mk.addTo(map);
+      extraMarkersRef.current.push(mk);
+    }
+    return () => {
+      for (const mk of extraMarkersRef.current) mk.remove();
+      extraMarkersRef.current = [];
+    };
+  }, [markers]);
+
   useEffect(() => {
     const canvas = mapRef.current?.getCanvas();
     if (canvas) canvas.style.cursor = drawing ? "crosshair" : "";
