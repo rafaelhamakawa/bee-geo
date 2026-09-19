@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HivesTab, useHives } from "@/components/hives-tab";
+import { BaitBoxesTab } from "@/components/bait-boxes-tab";
 import { formatCoord, fmtHa, fmtPct } from "@/lib/geoapis";
 
 import {
@@ -146,6 +147,9 @@ function ApiaryDetailPage() {
           <TabsTrigger value="hives" className="flex-1">
             Colmeias
           </TabsTrigger>
+          <TabsTrigger value="baits" className="flex-1">
+            Iscas
+          </TabsTrigger>
           <TabsTrigger value="analyses" className="flex-1">
             Análises
           </TabsTrigger>
@@ -205,6 +209,10 @@ function ApiaryDetailPage() {
 
         <TabsContent value="hives" className="space-y-4">
           <HivesTab apiary={a} safeCapacity={safe} />
+        </TabsContent>
+
+        <TabsContent value="baits" className="space-y-4">
+          <BaitBoxesTab apiary={a} />
         </TabsContent>
 
 
