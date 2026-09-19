@@ -120,6 +120,9 @@ export default function ApiaryMap({
   drawingRef.current = drawing;
   onDrawPointRef.current = onDrawPoint;
   nearbyRef.current = nearby ?? [];
+  const onMapClickRef = useRef(onMapClick);
+  onMapClickRef.current = onMapClick;
+  const extraMarkersRef = useRef<maplibregl.Marker[]>([]);
   const [failed, setFailed] = useState(false);
 
 
