@@ -198,7 +198,9 @@ export function BaitBoxesTab({ apiary }: { apiary: Apiary }) {
           latitude={apiary.latitude}
           longitude={apiary.longitude}
           markers={markers}
-          onMapClick={picking ? (lat, lng) => openDialog(lat, lng) : undefined}
+          onMapClick={(lat, lng) => {
+            if (picking) openDialog(lat, lng);
+          }}
           className="h-72 w-full rounded-2xl"
         />
       </Suspense>
