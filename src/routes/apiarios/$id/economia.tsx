@@ -153,7 +153,7 @@ function EconomyPage() {
 
   const removeRow = useMutation({
     mutationFn: async ({ table, rowId }: { table: string; rowId: string }) => {
-      const { error } = await supabase.from(table).delete().eq("id", rowId);
+      const { error } = await supabase.from(table as "apiary_sales").delete().eq("id", rowId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -700,7 +700,7 @@ function ProductionDialog({
         lot_number: form.lot_number || null,
         notes: form.notes || null,
       };
-      const { error } = await supabase.from("hive_production_records").insert(payload);
+      const { error } = await supabase.from("hive_production_records").insert(payload as never);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -828,7 +828,7 @@ function SaleDialog({
         lot_number: form.lot_number || null,
         notes: form.notes || null,
       };
-      const { error } = await supabase.from("apiary_sales").insert(payload);
+      const { error } = await supabase.from("apiary_sales").insert(payload as never);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -979,7 +979,7 @@ function ExpenseDialog({ apiaryId, onSaved }: { apiaryId: string; onSaved: () =>
         is_recurring: form.is_recurring,
         notes: form.notes || null,
       };
-      const { error } = await supabase.from("apiary_expenses").insert(payload);
+      const { error } = await supabase.from("apiary_expenses").insert(payload as never);
       if (error) throw error;
     },
     onSuccess: () => {

@@ -94,8 +94,12 @@ function ApiaryDetailPage() {
 
 
   async function remove() {
-    const { error } = await supabase.from("apiaries").delete().eq("id", id);
-    if (error) { toast.error("Não foi possível excluir o apiário."); return; }
+    const { data: deleted, error } = await supabase.from("apiaries").delete().eq("id", id).select("id");
+    if (error || !deleted?.length) {
+      console.error("Erro ao excluir apiário", error);
+      toast.error("Não foi possível excluir o apiário.");
+      return;
+    }
     toast.success("Apiário excluído.");
     navigate({ to: "/apiarios", replace: true });
   }
