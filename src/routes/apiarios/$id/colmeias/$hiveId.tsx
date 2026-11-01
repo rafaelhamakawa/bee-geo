@@ -185,7 +185,7 @@ function HiveDetailPage() {
 
   const saveHive = useMutation({
     mutationFn: async (patch: Partial<Hive>) => {
-      const { error } = await supabase.from("hives").update(patch).eq("id", hiveId);
+      const { error } = await supabase.from("hives").update(patch as never).eq("id", hiveId);
       if (error) throw error;
     },
     onSuccess: () => {
