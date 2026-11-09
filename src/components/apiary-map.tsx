@@ -140,6 +140,7 @@ export default function ApiaryMap({
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
       map.on("error", () => setFailed(true));
       const addLayers = () => {
+        console.log("DBG addLayers", !!map.getSource("radius"), showCircle);
         if (map.getSource("radius")) return;
         if (showCircle) {
           map.addSource("radius", {
