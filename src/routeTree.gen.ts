@@ -20,6 +20,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as RedefinirSenhaRouteImport } from './routes/redefinir-senha'
 import { Route as TermosRouteImport } from './routes/termos'
+import { Route as TesteMapaRouteImport } from './routes/teste-mapa'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminCotacoesRouteImport } from './routes/admin/cotacoes'
 import { Route as AnalisesIndexRouteImport } from './routes/analises/index'
@@ -86,6 +87,11 @@ const RedefinirSenhaRoute = RedefinirSenhaRouteImport.update({
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TesteMapaRoute = TesteMapaRouteImport.update({
+  id: '/teste-mapa',
+  path: '/teste-mapa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
+  '/teste-mapa': typeof TesteMapaRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
@@ -187,6 +194,7 @@ export interface FileRoutesByTo {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
+  '/teste-mapa': typeof TesteMapaRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
@@ -213,6 +221,7 @@ export interface FileRoutesById {
   '/recuperar-senha': typeof RecuperarSenhaRoute
   '/redefinir-senha': typeof RedefinirSenhaRoute
   '/termos': typeof TermosRoute
+  '/teste-mapa': typeof TesteMapaRoute
   '/admin/cotacoes': typeof AdminCotacoesRoute
   '/analises/$analysisId': typeof AnalisesAnalysisIdRoute
   '/apiarios/novo': typeof ApiariosNovoRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/termos'
+    | '/teste-mapa'
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/termos'
+    | '/teste-mapa'
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/recuperar-senha'
     | '/redefinir-senha'
     | '/termos'
+    | '/teste-mapa'
     | '/admin/cotacoes'
     | '/analises/$analysisId'
     | '/apiarios/novo'
@@ -316,6 +328,7 @@ export interface RootRouteChildren {
   RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   RedefinirSenhaRoute: typeof RedefinirSenhaRoute
   TermosRoute: typeof TermosRoute
+  TesteMapaRoute: typeof TesteMapaRoute
   AdminCotacoesRoute: typeof AdminCotacoesRoute
   AnalisesAnalysisIdRoute: typeof AnalisesAnalysisIdRoute
   ApiariosNovoRoute: typeof ApiariosNovoRoute
@@ -407,6 +420,13 @@ declare module '@tanstack/react-router' {
       path: '/termos'
       fullPath: '/termos'
       preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teste-mapa': {
+      id: '/teste-mapa'
+      path: '/teste-mapa'
+      fullPath: '/teste-mapa'
+      preLoaderRoute: typeof TesteMapaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -508,6 +528,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecuperarSenhaRoute: RecuperarSenhaRoute,
   RedefinirSenhaRoute: RedefinirSenhaRoute,
   TermosRoute: TermosRoute,
+  TesteMapaRoute: TesteMapaRoute,
   AdminCotacoesRoute: AdminCotacoesRoute,
   AnalisesAnalysisIdRoute: AnalisesAnalysisIdRoute,
   ApiariosNovoRoute: ApiariosNovoRoute,
