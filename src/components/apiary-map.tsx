@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-csp-worker.js?url";
+
+maplibregl.setWorkerUrl(maplibreWorkerUrl);
 import polygonClipping from "polygon-clipping";
 import { FLIGHT_RADIUS_M } from "@/lib/geoapis";
 
@@ -140,7 +143,6 @@ export default function ApiaryMap({
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
       map.on("error", () => setFailed(true));
       const addLayers = () => {
-        console.log("DBG addLayers", !!map.getSource("radius"), showCircle);
         if (map.getSource("radius")) return;
         if (showCircle) {
           map.addSource("radius", {
@@ -252,7 +254,6 @@ export default function ApiaryMap({
         }
       });
 
-      (window as any).__map = map;
       markerRef.current = marker;
       mapRef.current = map;
     } catch {
