@@ -251,6 +251,7 @@ export default function ApiaryMap({
         }
       });
 
+      (window as any).__map = map;
       markerRef.current = marker;
       mapRef.current = map;
     } catch {
