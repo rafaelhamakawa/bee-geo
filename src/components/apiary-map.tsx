@@ -37,7 +37,7 @@ function neighborsGeoJSON(
 ): maplibregl.GeoJSONSourceSpecification["data"] {
   const main = [[circleRing(lat, lng, radiusM)]] as any;
   const features: any[] = [];
-  for (const n of nearby) {
+  for (const n of nearby ?? []) {
     if (n.latitude == null || n.longitude == null) continue;
     const ring = circleRing(n.latitude, n.longitude, radiusM);
     features.push({
@@ -216,8 +216,16 @@ export default function ApiaryMap({
           paint: { "circle-radius": 4, "circle-color": "#F5A000" },
         });
       };
-      if (map.isStyleLoaded()) addLayers();
-      else map.on("load", addLayers);
+      const safeAdd = () => {
+        try {
+          addLayers();
+        } catch (err) {
+          console.error("Falha ao desenhar camadas do mapa", err);
+        }
+      };
+      map.on("load", safeAdd);
+      map.on("styledata", safeAdd);
+      map.on("idle", safeAdd);
 
 
       const marker = new maplibregl.Marker({ color: "#0B6337", draggable })
@@ -261,13 +269,14 @@ export default function ApiaryMap({
     markerRef.current?.setLngLat([longitude, latitude]);
     map.easeTo({ center: [longitude, latitude], duration: 400 });
     const apply = () => {
+      if (!map.getSource("radius")) return;
       const src = map.getSource("radius") as maplibregl.GeoJSONSource | undefined;
       src?.setData(circleGeoJSON(latitude, longitude, FLIGHT_RADIUS_M));
       const nsrc = map.getSource("neighbors") as maplibregl.GeoJSONSource | undefined;
       nsrc?.setData(neighborsGeoJSON(latitude, longitude, FLIGHT_RADIUS_M, nearby ?? []));
     };
-    if (map.isStyleLoaded()) apply();
-    else map.once("load", apply);
+    apply();
+    map.once("idle", apply);
   }, [latitude, longitude, nearby]);
 
 
@@ -298,8 +307,8 @@ export default function ApiaryMap({
       }
       src.setData({ type: "FeatureCollection", features });
     };
-    if (map.isStyleLoaded()) apply();
-    else map.once("load", apply);
+    apply();
+    map.once("idle", apply);
   }, [drawPoints]);
 
   // Marcadores extras (posição do apicultor, caixas isca…)
