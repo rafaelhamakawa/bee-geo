@@ -57,6 +57,8 @@ function StudyPage() {
   const [step, setStep] = useState<"local" | "analise">("local");
   const [lat, setLat] = useState(-15.7801);
   const [lng, setLng] = useState(-47.9292);
+  const [latText, setLatText] = useState(String(-15.7801));
+  const [lngText, setLngText] = useState(String(-47.9292));
   const [plusCode, setPlusCode] = useState("");
   const [searchingCode, setSearchingCode] = useState(false);
   const [biome, setBiome] = useState("");
@@ -94,9 +96,30 @@ function StudyPage() {
   const mult = biomeMultiplier(biome);
   const totals = useMemo(() => computeAnalysis(rows, 0), [rows]);
 
+  function setCoords(a: number, b: number) {
+    setLat(a);
+    setLng(b);
+    setLatText(String(a));
+    setLngText(String(b));
+  }
+
+  // Aceita texto colado como "-15.7801, -47.9292" (os dois valores de uma vez) ou um valor só.
+  function handleCoordInput(field: "lat" | "lng", value: string) {
+    if (field === "lat") setLatText(value); else setLngText(value);
+    const nums = (value.match(/-?\d+(?:[.,]\d+)?/g) ?? []).map((n) => Number(n.replace(",", ".")));
+    if (nums.length >= 2) {
+      const [a, b] = nums as [number, number];
+      if (Math.abs(a) <= 90 && Math.abs(b) <= 180) setCoords(a, b);
+    } else if (nums.length === 1) {
+      const n = nums[0]!;
+      if (field === "lat" && Math.abs(n) <= 90) setLat(n);
+      if (field === "lng" && Math.abs(n) <= 180) setLng(n);
+    }
+  }
+
   function locate() {
     navigator.geolocation?.getCurrentPosition(
-      (p) => { setLat(p.coords.latitude); setLng(p.coords.longitude); },
+      (p) => setCoords(p.coords.latitude, p.coords.longitude),
       () => toast.error("Não foi possível obter sua localização."),
     );
   }
@@ -109,8 +132,7 @@ function StudyPage() {
       if (!result) {
         toast.error("Plus Code inválido. Ex.: 588MC9X8+RC ou C9X8+RC São Paulo");
       } else {
-        setLat(Number(result.lat.toFixed(6)));
-        setLng(Number(result.lng.toFixed(6)));
+        setCoords(Number(result.lat.toFixed(6)), Number(result.lng.toFixed(6)));
         toast.success("Localização encontrada pelo Plus Code.");
       }
     } catch (e) {
@@ -208,7 +230,7 @@ function StudyPage() {
         latitude={lat}
         longitude={lng}
         draggable={step === "local"}
-        onMove={(a, b) => { setLat(a); setLng(b); }}
+        onMove={(a, b) => setCoords(a, b)}
         nearby={step === "analise" ? nearby : []}
         drawing={drawing}
         drawPoints={drawPoints}
@@ -230,10 +252,11 @@ function StudyPage() {
             <Label htmlFor="lat">Latitude</Label>
             <Input
               id="lat"
-              type="number"
-              step="any"
-              value={lat}
-              onChange={(e) => setLat(Number(e.target.value))}
+              type="text"
+              inputMode="decimal"
+              value={latText}
+              onChange={(e) => handleCoordInput("lat", e.target.value)}
+              placeholder="-15,7801"
               className="h-12 bg-card"
             />
           </div>
@@ -241,10 +264,11 @@ function StudyPage() {
             <Label htmlFor="lng">Longitude</Label>
             <Input
               id="lng"
-              type="number"
-              step="any"
-              value={lng}
-              onChange={(e) => setLng(Number(e.target.value))}
+              type="text"
+              inputMode="decimal"
+              value={lngText}
+              onChange={(e) => handleCoordInput("lng", e.target.value)}
+              placeholder="-47,9292"
               className="h-12 bg-card"
             />
           </div>
