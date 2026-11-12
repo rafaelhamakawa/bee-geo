@@ -9,14 +9,14 @@ export type FipmelQuote = {
   consultado_em: string;
   fonte: string;
   fonte_url: string;
-  erro?: string;
+  erro?: string | undefined;
 };
 
 function parseQuote(html: string) {
-  for (const [, script] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)) {
+  for (const [, script = ""] of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi)) {
     const m = /window\.FIPMEL_DADOS\s*=\s*(\{[\s\S]*?\})\s*(?=;\s*(?:window\.|$)|$)/.exec(script);
     if (!m) continue;
-    const data = JSON.parse(m[1]);
+    const data = JSON.parse(m[1] ?? "{}");
     const br = data?.ufs?.BR;
     const d = typeof data?.atualizado === "string" ? /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(data.atualizado) : null;
     if (typeof br?.i !== "number" || !Number.isFinite(br.i) || !d) throw new Error("Formato inesperado");
