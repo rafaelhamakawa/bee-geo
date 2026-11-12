@@ -292,8 +292,8 @@ export default function ApiaryMap({
         }
         if (onAreaClickRef.current && map.getLayer("areas-fill")) {
           const hit = map.queryRenderedFeatures(e.point, { layers: ["areas-fill"] })[0];
-          if (hit?.properties?.id) {
-            onAreaClickRef.current(String(hit.properties.id));
+          if (hit?.properties?.["id"]) {
+            onAreaClickRef.current(String(hit.properties["id"]));
             return;
           }
         }

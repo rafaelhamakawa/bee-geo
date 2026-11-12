@@ -212,7 +212,7 @@ function StudyPage() {
         drawing={drawing}
         drawPoints={drawPoints}
         onDrawPoint={(x, yy) => setDrawPoints((p) => [...p, [x, yy]])}
-        areas={step === "analise" ? mapAreas : undefined}
+        areas={step === "analise" ? mapAreas : []}
         onAreaClick={(id) => { setSelected(id); setEditing(false); }}
       />
     </Suspense>
@@ -290,7 +290,7 @@ function StudyPage() {
       {rows.length ? (
         <div className="mt-4 rounded-2xl bg-card p-4 shadow-sm">
           <h2 className="mb-2 font-bold text-primary">Fragmentos</h2>
-          {rows.map((r, i) => (
+          {rows.map((r) => (
             <div key={r.id} className={`flex items-center justify-between rounded-lg px-1 py-1 text-sm ${r.id === selected ? "bg-primary/10" : ""}`}>
               <button className="flex min-w-0 items-center gap-2 text-left" onClick={() => { setSelected(r.id); setEditing(false); }}>
                 <span className="h-3 w-3 shrink-0 rounded-sm" style={{ background: AREA_COLORS[r.kind] }} />
