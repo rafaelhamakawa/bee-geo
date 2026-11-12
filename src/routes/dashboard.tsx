@@ -97,6 +97,12 @@ function DashboardPage() {
             <StatCard value={totalSafe} label="Capacidade segura" tone="text-primary" />
           </div>
 
+          <Button asChild className="mt-6 h-12 w-full">
+            <Link to="/estudo-pasto">
+              <MapPin className="mr-2 h-4 w-4" /> Estudo pasto apícola
+            </Link>
+          </Button>
+
           <div className="mt-6 flex items-center justify-between">
             <h2 className="text-lg font-bold text-primary">Meus apiários</h2>
             <Button asChild size="sm" className="rounded-full">
