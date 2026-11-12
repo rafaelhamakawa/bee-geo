@@ -100,6 +100,24 @@ function StudyPage() {
       () => toast.error("Não foi possível obter sua localização."),
     );
   }
+
+  async function searchPlusCode() {
+    if (!plusCode.trim()) { toast.error("Digite um Plus Code. Ex.: 588MC9X8+RC"); return; }
+    setSearchingCode(true);
+    try {
+      const result = await parsePlusCode(plusCode);
+      if (!result) {
+        toast.error("Plus Code inválido. Ex.: 588MC9X8+RC ou C9X8+RC São Paulo");
+      } else {
+        setLat(Number(result.lat.toFixed(6)));
+        setLng(Number(result.lng.toFixed(6)));
+        toast.success("Localização encontrada pelo Plus Code.");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível localizar o Plus Code.");
+    }
+    setSearchingCode(false);
+  }
   useEffect(locate, []);
 
   async function start() {
