@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import type { Apiary, ForageAnalysis } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WelcomeTour } from "@/components/welcome-tour";
 
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
@@ -73,6 +74,7 @@ function DashboardPage() {
 
   return (
     <AppShell>
+      <WelcomeTour />
       <div className="mb-4">
         <p className="text-sm text-muted-foreground">Olá,</p>
         <h1 className="text-2xl font-extrabold text-primary">{firstName || "apicultor"} 👋</h1>
