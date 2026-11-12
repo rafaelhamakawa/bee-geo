@@ -1,7 +1,7 @@
 import { CIRCLE_AREA_HA, fmtHa, fmtPct, type AnalysisTotals } from "@/lib/geoapis";
 import type { MultiPoly } from "@/lib/vegetation-scan";
 
-type Area = { name?: string | null; vegetation_type?: string | null; area_ha: number; percentage: number; geom?: MultiPoly; biome?: string };
+type Area = { name?: string | null; vegetation_type?: string | null; area_ha: number; percentage: number; geom?: MultiPoly | undefined; biome?: string | undefined };
 type Near = { latitude: number; longitude: number };
 
 export async function exportStudyPdf(o: {
