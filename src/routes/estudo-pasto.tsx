@@ -23,6 +23,7 @@ import {
   type PatchInput,
 } from "@/lib/geoapis";
 import { multiPolygonAreaHa, polygonAreaHa, scaleArea, scanVegetation, type MultiPoly } from "@/lib/vegetation-scan";
+import { parsePlusCode } from "@/lib/pluscode";
 import { Slider } from "@/components/ui/slider";
 import { Maximize2, X } from "lucide-react";
 
@@ -56,6 +57,8 @@ function StudyPage() {
   const [step, setStep] = useState<"local" | "analise">("local");
   const [lat, setLat] = useState(-15.7801);
   const [lng, setLng] = useState(-47.9292);
+  const [plusCode, setPlusCode] = useState("");
+  const [searchingCode, setSearchingCode] = useState(false);
   const [biome, setBiome] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [scanning, setScanning] = useState(false);
@@ -96,6 +99,24 @@ function StudyPage() {
       (p) => { setLat(p.coords.latitude); setLng(p.coords.longitude); },
       () => toast.error("Não foi possível obter sua localização."),
     );
+  }
+
+  async function searchPlusCode() {
+    if (!plusCode.trim()) { toast.error("Digite um Plus Code. Ex.: 588MC9X8+RC"); return; }
+    setSearchingCode(true);
+    try {
+      const result = await parsePlusCode(plusCode);
+      if (!result) {
+        toast.error("Plus Code inválido. Ex.: 588MC9X8+RC ou C9X8+RC São Paulo");
+      } else {
+        setLat(Number(result.lat.toFixed(6)));
+        setLng(Number(result.lng.toFixed(6)));
+        toast.success("Localização encontrada pelo Plus Code.");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Não foi possível localizar o Plus Code.");
+    }
+    setSearchingCode(false);
   }
   useEffect(locate, []);
 
@@ -226,6 +247,22 @@ function StudyPage() {
               onChange={(e) => setLng(Number(e.target.value))}
               className="h-12 bg-card"
             />
+          </div>
+        </div>
+        <div className="mt-3 space-y-2">
+          <Label htmlFor="pluscode">Plus Code do Google</Label>
+          <div className="flex gap-2">
+            <Input
+              id="pluscode"
+              value={plusCode}
+              onChange={(e) => setPlusCode(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); searchPlusCode(); } }}
+              placeholder="Ex.: 588MC9X8+RC ou C9X8+RC São Paulo"
+              className="h-12 bg-card"
+            />
+            <Button variant="outline" className="h-12 shrink-0" disabled={searchingCode} onClick={searchPlusCode}>
+              {searchingCode ? <Loader2 className="h-4 w-4 animate-spin" /> : "Buscar"}
+            </Button>
           </div>
         </div>
         <Button variant="outline" className="mt-3 w-full" onClick={locate}><LocateFixed className="mr-2 h-4 w-4" />Usar minha localização</Button>
