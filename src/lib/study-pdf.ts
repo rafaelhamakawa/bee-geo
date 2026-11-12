@@ -49,12 +49,13 @@ export async function exportStudyPdf(o: {
       txt(lab, lx, ly + 0.6, 6, true, DARK, "center");
     }
   });
+  doc.saveGraphicsState(); doc.rect(mx, my, mw, mh, null); doc.clip(); doc.discardPath();
   o.nearby.forEach((a) => {
     const [x, y] = P(a.longitude, a.latitude);
     if (Math.hypot(x - cx, y - cy) < 1) return;
     doc.setDrawColor(200, 60, 60); doc.setLineDashPattern([1.5, 1], 0); doc.setLineWidth(0.4); doc.circle(x, y, R, "S");
   });
-  doc.setLineDashPattern([], 0);
+  doc.restoreGraphicsState(); doc.setLineDashPattern([], 0);
   doc.setDrawColor(20); doc.setLineWidth(0.6); doc.circle(cx, cy, R, "S");
   doc.setLineDashPattern([1.2, 1], 0); doc.setLineWidth(0.4); doc.line(cx, cy, cx + R, cy); doc.setLineDashPattern([], 0);
   doc.setFillColor(255, 255, 255); doc.rect(cx + R / 2 - 6, cy - 5, 12, 3.6, "F");
@@ -80,20 +81,20 @@ export async function exportStudyPdf(o: {
     if (value) txt(value, x + 1.5, y + 5, 7.5);
   };
   let fy = 51;
-  field("Propriedade ou área", o.name, dx, fy, dw); fy += 11;
-  field("Município / UF", "", dx, fy, dw); fy += 11;
-  field("Região do Brasil", "", dx, fy, dw); fy += 11;
-  field("Bioma(s)", [...new Set([o.biome, ...o.areas.map((a) => a.biome)].filter(Boolean))].join(", "), dx, fy, dw); fy += 11;
-  field("Latitude (°)", o.lat.toFixed(6), dx, fy, 30); field("Longitude (°)", o.lng.toFixed(6), dx + 33, fy, 30); fy += 11;
-  field("Datum / SRC", "WGS 84 (EPSG:4326)", dx, fy, dw); fy += 11;
-  field("Fonte e data da imagem", `Satélite · ${new Date().toLocaleDateString("pt-BR")}`, dx, fy, dw); fy += 12;
-  doc.setFillColor(PALE[0], PALE[1], PALE[2]); doc.setDrawColor(200); doc.roundedRect(dx, fy, dw, 44, 2, 2, "FD");
-  txt("Área total do círculo", dx + 4, fy + 6, 7.5, false, G);
-  txt(`${fmtHa(CIRCLE_AREA_HA)} ha`, dx + 4, fy + 15, 18, true);
-  doc.setDrawColor(200); doc.line(dx + 4, fy + 19, dx + dw - 4, fy + 19);
-  txt("Pasto potencial", dx + 4, fy + 25, 7.5, false, G);
-  txt(`${fmtHa(o.totals.total_forage_area_ha)} ha`, dx + 4, fy + 33, 16, true, G);
-  txt(`${fmtPct(o.totals.total_forage_percentage)} do círculo · ${o.totals.safe_hives} colmeias seguras`, dx + 4, fy + 39, 6.5, false, MUTED);
+  field("Propriedade ou área", o.name, dx, fy, dw); fy += 10;
+  field("Município / UF", "", dx, fy, dw); fy += 10;
+  field("Região do Brasil", "", dx, fy, dw); fy += 10;
+  field("Bioma(s)", [...new Set([o.biome, ...o.areas.map((a) => a.biome)].filter(Boolean))].join(", "), dx, fy, dw); fy += 10;
+  field("Latitude (°)", o.lat.toFixed(6), dx, fy, 30); field("Longitude (°)", o.lng.toFixed(6), dx + 33, fy, 30); fy += 10;
+  field("Datum / SRC", "WGS 84 (EPSG:4326)", dx, fy, dw); fy += 10;
+  field("Fonte e data da imagem", `Satélite · ${new Date().toLocaleDateString("pt-BR")}`, dx, fy, dw); fy += 11;
+  doc.setFillColor(PALE[0], PALE[1], PALE[2]); doc.setDrawColor(200); doc.roundedRect(dx, fy, dw, 36, 2, 2, "FD");
+  txt("Área total do círculo", dx + 4, fy + 5, 7, false, G);
+  txt(`${fmtHa(CIRCLE_AREA_HA)} ha`, dx + 4, fy + 12, 15, true);
+  doc.line(dx + 4, fy + 15, dx + dw - 4, fy + 15);
+  txt("Pasto potencial", dx + 4, fy + 20, 7, false, G);
+  txt(`${fmtHa(o.totals.total_forage_area_ha)} ha`, dx + 4, fy + 27, 14, true, G);
+  txt(`${fmtPct(o.totals.total_forage_percentage)} do círculo · ${o.totals.safe_hives} colmeias seguras`, dx + 4, fy + 32, 6.5, false, MUTED);
 
   // Tabela
   let y = 162;
