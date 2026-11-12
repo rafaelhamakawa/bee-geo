@@ -131,7 +131,7 @@ export async function exportStudyPdf(o: {
       txt(lab, lx, ly + 0.6, 6, true, DARK, "center");
     }
   });
-  if (sat) doc.setGState(new doc.GState({ opacity: 1 }));
+  if (sat) doc.setGState(gstate(1));
 
   doc.saveGraphicsState(); doc.rect(mx, my, mw, mh, null); doc.clip(); doc.discardPath();
   o.nearby.forEach((a) => {
