@@ -97,7 +97,7 @@ function StudyPage() {
   }
 
   function finishPolygon() {
-    if (drawPoints.length < 3) return toast.error("Marque ao menos 3 pontos no mapa.");
+    if (drawPoints.length < 3) { toast.error("Marque ao menos 3 pontos no mapa."); return; }
     const area = polygonAreaHa(drawPoints);
     setRows([...rows, { patch_number: rows.length + 1, name: `Área delimitada ${rows.length + 1}`, vegetation_type: "Vegetação nativa", land_cover_type: "Vegetação nativa", area_ha: Number(area.toFixed(2)), hive_multiplier: mult, is_approved: true }]);
     setDrawPoints([]);
@@ -141,13 +141,13 @@ function StudyPage() {
 
   async function saveAsApiary() {
     if (!user) return;
-    if (!name.trim()) return toast.error("Informe um nome para o apiário.");
+    if (!name.trim()) { toast.error("Informe um nome para o apiário."); return; }
     setBusy(true);
     const { data: ap, error } = await supabase
       .from("apiaries")
       .insert({ user_id: user.id, name: name.trim(), latitude: lat, longitude: lng, biome: biome || null, current_hives: 0, status: "active" } as never)
       .select("id").single();
-    if (error || !ap) { setBusy(false); return toast.error("Não foi possível salvar o apiário."); }
+    if (error || !ap) { setBusy(false); toast.error("Não foi possível salvar o apiário."); return;  }
     const apId = (ap as { id: string }).id;
     const { data: an } = await supabase.from("forage_analyses").insert({
       user_id: user.id, apiary_id: apId, analysis_mode: "manual", status: "completed", biome: biome || null,
