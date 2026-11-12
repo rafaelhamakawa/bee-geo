@@ -9,9 +9,17 @@ import {
   quoteFreshness,
 } from "@/lib/economics";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { getFipmelQuote } from "@/lib/fipmel.functions";
 
 export function HoneyQuoteCard({ state }: { state?: string | null }) {
   const { data, isLoading, isError } = useHoneyQuote(state);
+  const live = useQuery({
+    queryKey: ["fipmel-live"],
+    queryFn: () => getFipmelQuote(),
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: 30 * 60 * 1000,
+  });
 
   if (isLoading) return <Skeleton className="h-32 w-full rounded-2xl" />;
 
@@ -28,6 +36,24 @@ export function HoneyQuoteCard({ state }: { state?: string | null }) {
           {state ? ` · ${state.toUpperCase()}` : ""}
         </span>
       </div>
+
+      {live.data ? (
+        <div className="mt-3 rounded-xl bg-accent/30 p-3">
+          <p className="text-xs font-semibold text-muted-foreground">
+            Média Brasil · Mel silvestre a granel (tempo real)
+          </p>
+          <p className="text-2xl font-extrabold text-primary">
+            {brl(live.data.valor_brl_kg)}{" "}
+            <span className="text-sm font-medium text-muted-foreground">/ kg</span>
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Referência FIPMEL: {dateBR(live.data.data_referencia)} · Consulta:{" "}
+            {dateTimeBR(live.data.consultado_em)}
+          </p>
+        </div>
+      ) : live.isLoading ? (
+        <Skeleton className="mt-3 h-16 w-full rounded-xl" />
+      ) : null}
 
       {freshness === "unavailable" || !quote ? (
         <div className="mt-3 space-y-1">

@@ -258,6 +258,27 @@ export type Database = {
           },
         ]
       }
+      fipmel_cotacao_atual: {
+        Row: {
+          consultado_em: string
+          data_referencia: string
+          id: number
+          valor_centavos: number
+        }
+        Insert: {
+          consultado_em: string
+          data_referencia: string
+          id: number
+          valor_centavos: number
+        }
+        Update: {
+          consultado_em?: string
+          data_referencia?: string
+          id?: number
+          valor_centavos?: number
+        }
+        Relationships: []
+      }
       forage_analyses: {
         Row: {
           analysis_mode: string
