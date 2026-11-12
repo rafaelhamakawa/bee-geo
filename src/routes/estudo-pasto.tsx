@@ -132,8 +132,7 @@ function StudyPage() {
       if (!result) {
         toast.error("Plus Code inválido. Ex.: 588MC9X8+RC ou C9X8+RC São Paulo");
       } else {
-        setLat(Number(result.lat.toFixed(6)));
-        setLng(Number(result.lng.toFixed(6)));
+        setCoords(Number(result.lat.toFixed(6)), Number(result.lng.toFixed(6)));
         toast.success("Localização encontrada pelo Plus Code.");
       }
     } catch (e) {
@@ -231,7 +230,7 @@ function StudyPage() {
         latitude={lat}
         longitude={lng}
         draggable={step === "local"}
-        onMove={(a, b) => { setLat(a); setLng(b); }}
+        onMove={(a, b) => setCoords(a, b)}
         nearby={step === "analise" ? nearby : []}
         drawing={drawing}
         drawPoints={drawPoints}
@@ -253,10 +252,11 @@ function StudyPage() {
             <Label htmlFor="lat">Latitude</Label>
             <Input
               id="lat"
-              type="number"
-              step="any"
-              value={lat}
-              onChange={(e) => setLat(Number(e.target.value))}
+              type="text"
+              inputMode="decimal"
+              value={latText}
+              onChange={(e) => handleCoordInput("lat", e.target.value)}
+              placeholder="-15,7801"
               className="h-12 bg-card"
             />
           </div>
@@ -264,10 +264,11 @@ function StudyPage() {
             <Label htmlFor="lng">Longitude</Label>
             <Input
               id="lng"
-              type="number"
-              step="any"
-              value={lng}
-              onChange={(e) => setLng(Number(e.target.value))}
+              type="text"
+              inputMode="decimal"
+              value={lngText}
+              onChange={(e) => handleCoordInput("lng", e.target.value)}
+              placeholder="-47,9292"
               className="h-12 bg-card"
             />
           </div>
