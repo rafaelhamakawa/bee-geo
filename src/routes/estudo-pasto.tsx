@@ -249,6 +249,22 @@ function StudyPage() {
             />
           </div>
         </div>
+        <div className="mt-3 space-y-2">
+          <Label htmlFor="pluscode">Plus Code do Google</Label>
+          <div className="flex gap-2">
+            <Input
+              id="pluscode"
+              value={plusCode}
+              onChange={(e) => setPlusCode(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); searchPlusCode(); } }}
+              placeholder="Ex.: 588MC9X8+RC ou C9X8+RC São Paulo"
+              className="h-12 bg-card"
+            />
+            <Button variant="outline" className="h-12 shrink-0" disabled={searchingCode} onClick={searchPlusCode}>
+              {searchingCode ? <Loader2 className="h-4 w-4 animate-spin" /> : "Buscar"}
+            </Button>
+          </div>
+        </div>
         <Button variant="outline" className="mt-3 w-full" onClick={locate}><LocateFixed className="mr-2 h-4 w-4" />Usar minha localização</Button>
         <div className="mt-4 space-y-2">
           <Label>Bioma</Label>
