@@ -1,0 +1,4 @@
+CREATE POLICY "admin apiaries delete" ON public.apiaries FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+CREATE POLICY "admin analyses delete" ON public.forage_analyses FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+CREATE POLICY "admin patches delete" ON public.forage_patches FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
+CREATE POLICY "admin bait boxes delete" ON public.bait_boxes FOR DELETE TO authenticated USING (public.has_role(auth.uid(), 'admin'::public.app_role));
