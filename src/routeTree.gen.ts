@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as EscolherModoRouteImport } from './routes/escolher-modo'
+import { Route as EstudoPastoRouteImport } from './routes/estudo-pasto'
 import { Route as FinanceiroRouteImport } from './routes/financeiro'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as PerfilRouteImport } from './routes/perfil'
@@ -51,6 +52,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const EscolherModoRoute = EscolherModoRouteImport.update({
   id: '/escolher-modo',
   path: '/escolher-modo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EstudoPastoRoute = EstudoPastoRouteImport.update({
+  id: '/estudo-pasto',
+  path: '/estudo-pasto',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FinanceiroRoute = FinanceiroRouteImport.update({
@@ -155,6 +161,7 @@ export interface FileRoutesByFullPath {
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
   '/escolher-modo': typeof EscolherModoRoute
+  '/estudo-pasto': typeof EstudoPastoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
   '/escolher-modo': typeof EscolherModoRoute
+  '/estudo-pasto': typeof EstudoPastoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -206,6 +214,7 @@ export interface FileRoutesById {
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
   '/escolher-modo': typeof EscolherModoRoute
+  '/estudo-pasto': typeof EstudoPastoRoute
   '/financeiro': typeof FinanceiroRoute
   '/login': typeof LoginRoute
   '/perfil': typeof PerfilRoute
@@ -233,6 +242,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/dashboard'
     | '/escolher-modo'
+    | '/estudo-pasto'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/dashboard'
     | '/escolher-modo'
+    | '/estudo-pasto'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/cadastro'
     | '/dashboard'
     | '/escolher-modo'
+    | '/estudo-pasto'
     | '/financeiro'
     | '/login'
     | '/perfil'
@@ -309,6 +321,7 @@ export interface RootRouteChildren {
   CadastroRoute: typeof CadastroRoute
   DashboardRoute: typeof DashboardRoute
   EscolherModoRoute: typeof EscolherModoRoute
+  EstudoPastoRoute: typeof EstudoPastoRoute
   FinanceiroRoute: typeof FinanceiroRoute
   LoginRoute: typeof LoginRoute
   PerfilRoute: typeof PerfilRoute
@@ -358,6 +371,13 @@ declare module '@tanstack/react-router' {
       path: '/escolher-modo'
       fullPath: '/escolher-modo'
       preLoaderRoute: typeof EscolherModoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/estudo-pasto': {
+      id: '/estudo-pasto'
+      path: '/estudo-pasto'
+      fullPath: '/estudo-pasto'
+      preLoaderRoute: typeof EstudoPastoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/financeiro': {
@@ -501,6 +521,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroRoute: CadastroRoute,
   DashboardRoute: DashboardRoute,
   EscolherModoRoute: EscolherModoRoute,
+  EstudoPastoRoute: EstudoPastoRoute,
   FinanceiroRoute: FinanceiroRoute,
   LoginRoute: LoginRoute,
   PerfilRoute: PerfilRoute,
