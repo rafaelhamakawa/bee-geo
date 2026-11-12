@@ -112,7 +112,8 @@ export async function exportStudyPdf(o: {
   }
 
   // Áreas delimitadas por cima do fundo (translúcidas quando há satélite).
-  if (sat) doc.setGState(new doc.GState({ opacity: 0.45 }));
+  const gstate = (opacity: number) => new (doc as any).GState({ opacity });
+  if (sat) doc.setGState(gstate(0.45));
   o.areas.forEach((a, i) => {
     if (!a.geom) return;
     doc.setFillColor(110, 170, 110); doc.setDrawColor(40, 100, 50); doc.setLineWidth(0.3);
