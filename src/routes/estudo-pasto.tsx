@@ -145,32 +145,9 @@ function StudyPage() {
   }
 
   async function exportPdf() {
-    const { jsPDF } = await import("jspdf");
-    const doc = new jsPDF();
-    let y = 20;
-    const line = (t: string, size = 11, bold = false) => {
-      doc.setFont("helvetica", bold ? "bold" : "normal");
-      doc.setFontSize(size);
-      for (const l of doc.splitTextToSize(t, 175)) { if (y > 280) { doc.addPage(); y = 20; } doc.text(l, 18, y); y += size * 0.5 + 1.5; }
-    };
-    line("GeoApis — Estudo de pasto apícola", 16, true); y += 2;
-    line(`Data: ${new Date().toLocaleDateString("pt-BR")}`);
-    if (name) line(`Local: ${name}`);
-    line(`Coordenadas: ${formatCoord(lat, lng)}`);
-    line(`Bioma: ${biome || "Não informado"}`); y += 3;
-    line("Resultado", 13, true);
-    line(`Raio de voo: 1,5 km (${fmtHa(CIRCLE_AREA_HA)} ha)`);
-    line(`Área de pasto: ${fmtHa(totals.total_forage_area_ha)} ha`);
-    line(`Percentual do círculo: ${fmtPct(totals.total_forage_percentage)}`);
-    line(`Capacidade bruta: ${totals.total_gross_hives.toFixed(2)} colmeias`);
-    line("Fator de segurança: 0,85");
-    line(`Capacidade segura recomendada: ${totals.safe_hives} colmeias`, 12, true);
-    line(`Apiários vizinhos (raios sobrepostos): ${nearby.length}`); y += 3;
-    line("Fragmentos", 13, true);
-    totals.patches.forEach((p) => line(`• ${p.name}: ${fmtHa(p.area_ha)} ha (${fmtPct(p.percentage)})`));
-    y += 4;
-    line(TECHNICAL_DISCLAIMER, 8);
-    doc.save(`estudo-pasto-${Date.now()}.pdf`);
+    const { exportStudyPdf } = await import("@/lib/study-pdf");
+    await exportStudyPdf({ name, lat, lng, biome, nearby, totals,
+      areas: totals.patches.map((p, i) => ({ ...p, geom: rows[i]?.geom, biome: rows[i]?.biome })) });
   }
 
   async function saveAsApiary() {
