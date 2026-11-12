@@ -16,6 +16,7 @@ import type { Apiary } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { EmptyState, StatCard } from "@/components/econ-bits";
+import { FinanceTimelineChart } from "@/components/finance-timeline-chart";
 import { HoneyQuoteCard } from "@/components/honey-quote-card";
 import { brl, currentMonth, monthPeriod, pct, safeDiv } from "@/lib/economics";
 
@@ -108,6 +109,14 @@ function FinancePage() {
 
   return (
     <AppShell title="Gestão financeira">
+      <div className="mb-4">
+        <FinanceTimelineChart
+          userId={user?.id}
+          startDate={
+            (apiaries ?? []).map((a) => a.created_at).filter(Boolean).sort()[0] ?? null
+          }
+        />
+      </div>
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">Consolidado de {period.label}</p>
         <Input
