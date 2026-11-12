@@ -1,11 +1,11 @@
-import { CIRCLE_AREA_HA, fmtHa, fmtPct, type AnalysisTotals } from "@/lib/geoapis";
+import { LIABILITY_DISCLAIMER, CIRCLE_AREA_HA, fmtHa, fmtPct, type AnalysisTotals } from "@/lib/geoapis";
 import type { MultiPoly } from "@/lib/vegetation-scan";
 
 type Area = { name?: string | null; vegetation_type?: string | null; area_ha: number; percentage: number; geom?: MultiPoly | undefined; biome?: string | undefined };
 type Near = { latitude: number; longitude: number };
 
 export async function exportStudyPdf(o: {
-  name: string; lat: number; lng: number; biome: string; totals: AnalysisTotals; areas: Area[]; nearby: Near[];
+  name: string; lat: number; lng: number; biome: string; totals: AnalysisTotals; areas: Area[]; nearby: Near[]; loc?: { municipio: string; uf: string; regiao: string } | null;
 }) {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -82,8 +82,8 @@ export async function exportStudyPdf(o: {
   };
   let fy = 51;
   field("Propriedade ou área", o.name, dx, fy, dw); fy += 10;
-  field("Município / UF", "", dx, fy, dw); fy += 10;
-  field("Região do Brasil", "", dx, fy, dw); fy += 10;
+  field("Município / UF", o.loc ? `${o.loc.municipio} / ${o.loc.uf}` : "", dx, fy, dw); fy += 10;
+  field("Região do Brasil", o.loc?.regiao ?? "", dx, fy, dw); fy += 10;
   field("Bioma(s)", [...new Set([o.biome, ...o.areas.map((a) => a.biome)].filter(Boolean))].join(", "), dx, fy, dw); fy += 10;
   field("Latitude (°)", o.lat.toFixed(6), dx, fy, 30); field("Longitude (°)", o.lng.toFixed(6), dx + 33, fy, 30); fy += 10;
   field("Datum / SRC", "WGS 84 (EPSG:4326)", dx, fy, dw); fy += 10;
@@ -138,5 +138,10 @@ export async function exportStudyPdf(o: {
   y += 10; hr(y); y += 6;
   txt("Fontes para consulta", 15, y, 7, true, G);
   txt("IBGE · Biomas     IBGE · Grandes Regiões     MapBiomas · Uso da terra     Embrapa · Flora apícola", 45, y, 7, false, MUTED);
+  y += 8; if (y > 275) { doc.addPage(); y = 20; }
+  doc.setFillColor(250, 238, 230); doc.roundedRect(15, y, 180, 14, 1.5, 1.5, "F");
+  txt("Aviso de responsabilidade", 18, y + 4.5, 7, true, [160, 50, 30]);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); doc.setTextColor(60, 60, 60);
+  doc.text(doc.splitTextToSize(LIABILITY_DISCLAIMER, 172), 18, y + 8);
   doc.save(`estudo-pasto-${Date.now()}.pdf`);
 }

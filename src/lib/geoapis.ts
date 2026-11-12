@@ -120,3 +120,6 @@ export function formatCoord(lat: number, lng: number): string {
 
 export const TECHNICAL_DISCLAIMER =
   "Esta análise apresenta uma estimativa potencial de cobertura vegetal e capacidade de suporte apícola. A disponibilidade real de néctar e pólen varia conforme as espécies vegetais, floração, clima, estação do ano, defensivos agrícolas, queimadas e competição com outros apiários. Recomenda-se validar os resultados por meio de levantamento de campo.";
+
+export const LIABILITY_DISCLAIMER =
+  "O GeoApis não assume responsabilidade pela veracidade dos dados apresentados. Este é apenas um estudo preliminar. Para ter certeza, consulte um zootecnista, médico veterinário, engenheiro agrônomo ou engenheiro florestal.";

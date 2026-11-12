@@ -19,6 +19,7 @@ import {
   fmtPct,
   formatCoord,
   TECHNICAL_DISCLAIMER,
+  LIABILITY_DISCLAIMER,
   type PatchInput,
 } from "@/lib/geoapis";
 import { multiPolygonAreaHa, polygonAreaHa, scaleArea, scanVegetation, type MultiPoly } from "@/lib/vegetation-scan";
@@ -146,7 +147,9 @@ function StudyPage() {
 
   async function exportPdf() {
     const { exportStudyPdf } = await import("@/lib/study-pdf");
-    await exportStudyPdf({ name, lat, lng, biome, nearby, totals,
+    const { ibgeLocate } = await import("@/lib/ibge");
+    const loc = await ibgeLocate(lat, lng);
+    await exportStudyPdf({ name, lat, lng, biome, nearby, totals, loc,
       areas: totals.patches.map((p, i) => ({ ...p, geom: rows[i]?.geom, biome: rows[i]?.biome })) });
   }
 
@@ -304,6 +307,7 @@ function StudyPage() {
         <Button variant="outline" className="h-12 w-full" disabled={scanning} onClick={exportPdf}><FileDown className="mr-2 h-4 w-4" />Exportar PDF</Button>
         <Button variant="ghost" className="h-12 w-full text-destructive" onClick={discard}><Trash2 className="mr-2 h-4 w-4" />Descartar</Button>
       </div>
+      <p className="mt-6 rounded-2xl border border-border bg-muted p-3 text-xs text-muted-foreground">{LIABILITY_DISCLAIMER}</p>
     </AppShell>
   );
 }
