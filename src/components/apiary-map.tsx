@@ -179,7 +179,7 @@ export default function ApiaryMap({
             id: "radius-fill",
             type: "fill",
             source: "radius",
-            paint: { "fill-color": "#F5A000", "fill-opacity": 0.28 },
+            paint: { "fill-color": "#F5A000", "fill-opacity": 0.15 },
           });
           map.addLayer({
             id: "radius-line",
