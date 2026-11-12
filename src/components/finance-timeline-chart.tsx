@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
-export function FinanceTimelineChart({ userId, startDate }: { userId?: string; startDate?: string | null }) {
+export function FinanceTimelineChart({ userId, startDate }: { userId?: string | undefined; startDate?: string | null | undefined }) {
   const { data, isLoading } = useQuery({
     queryKey: ["finance-timeline", userId, startDate],
     enabled: !!userId,
@@ -31,7 +31,8 @@ export function FinanceTimelineChart({ userId, startDate }: { userId?: string; s
       const now = new Date();
       const endKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
       const first = keys[0] ?? endKey;
-      let [y, m] = first.split("-").map(Number);
+      let y = Number(first.slice(0, 4));
+      let m = Number(first.slice(5, 7));
       const out: { label: string; revenue: number; costs: number }[] = [];
       for (let i = 0; i < 600; i++) {
         const k = `${y}-${String(m).padStart(2, "0")}`;
