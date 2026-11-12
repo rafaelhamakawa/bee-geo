@@ -57,6 +57,8 @@ function StudyPage() {
   const [step, setStep] = useState<"local" | "analise">("local");
   const [lat, setLat] = useState(-15.7801);
   const [lng, setLng] = useState(-47.9292);
+  const [latText, setLatText] = useState(String(-15.7801));
+  const [lngText, setLngText] = useState(String(-47.9292));
   const [plusCode, setPlusCode] = useState("");
   const [searchingCode, setSearchingCode] = useState(false);
   const [biome, setBiome] = useState("");
@@ -94,9 +96,30 @@ function StudyPage() {
   const mult = biomeMultiplier(biome);
   const totals = useMemo(() => computeAnalysis(rows, 0), [rows]);
 
+  function setCoords(a: number, b: number) {
+    setLat(a);
+    setLng(b);
+    setLatText(String(a));
+    setLngText(String(b));
+  }
+
+  // Aceita texto colado como "-15.7801, -47.9292" (os dois valores de uma vez) ou um valor só.
+  function handleCoordInput(field: "lat" | "lng", value: string) {
+    if (field === "lat") setLatText(value); else setLngText(value);
+    const nums = (value.match(/-?\d+(?:[.,]\d+)?/g) ?? []).map((n) => Number(n.replace(",", ".")));
+    if (nums.length >= 2) {
+      const [a, b] = nums as [number, number];
+      if (Math.abs(a) <= 90 && Math.abs(b) <= 180) setCoords(a, b);
+    } else if (nums.length === 1) {
+      const n = nums[0]!;
+      if (field === "lat" && Math.abs(n) <= 90) setLat(n);
+      if (field === "lng" && Math.abs(n) <= 180) setLng(n);
+    }
+  }
+
   function locate() {
     navigator.geolocation?.getCurrentPosition(
-      (p) => { setLat(p.coords.latitude); setLng(p.coords.longitude); },
+      (p) => setCoords(p.coords.latitude, p.coords.longitude),
       () => toast.error("Não foi possível obter sua localização."),
     );
   }
