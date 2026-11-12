@@ -4,6 +4,70 @@ import type { MultiPoly } from "@/lib/vegetation-scan";
 type Area = { name?: string | null; vegetation_type?: string | null; area_ha: number; percentage: number; geom?: MultiPoly | undefined; biome?: string | undefined };
 type Near = { latitude: number; longitude: number };
 
+type Project = (lng: number, lat: number) => [number, number];
+
+const ESRI_TILE = (z: number, x: number, y: number) =>
+  `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}`;
+
+function loadTile(z: number, x: number, y: number): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    const timer = setTimeout(() => reject(new Error("timeout")), 15000);
+    img.onload = () => { clearTimeout(timer); resolve(img); };
+    img.onerror = () => { clearTimeout(timer); reject(new Error("tile error")); };
+    img.src = ESRI_TILE(z, x, y);
+  });
+}
+
+// Baixa os tiles de satélite que cobrem o círculo de 1,5 km e devolve a imagem
+// montada + função de projeção (lng,lat) -> pixels do canvas.
+async function fetchSatelliteMap(
+  lat: number,
+  lng: number,
+  radiusM: number,
+): Promise<{ dataUrl: string; size: number; project: (lng: number, lat: number) => [number, number] } | null> {
+  try {
+    const z = 16;
+    const n = 2 ** z;
+    const pxX = (lg: number) => ((lg + 180) / 360) * n * 256;
+    const pxY = (lt: number) => {
+      const r = (lt * Math.PI) / 180;
+      return ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n * 256;
+    };
+    const mpp = (156543.03392 * Math.cos((lat * Math.PI) / 180)) / n; // metros por pixel
+    const half = radiusM / mpp;
+    const size = Math.ceil(half * 2);
+    if (size > 2048) return null;
+    const cx = pxX(lng), cy = pxY(lat);
+    const ox = cx - half, oy = cy - half;
+    const x0 = Math.floor(ox / 256), x1 = Math.floor((ox + size) / 256);
+    const y0 = Math.floor(oy / 256), y1 = Math.floor((oy + size) / 256);
+    const jobs: Promise<void>[] = [];
+    const canvas = document.createElement("canvas");
+    canvas.width = size; canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    for (let tx = x0; tx <= x1; tx++) {
+      for (let ty = y0; ty <= y1; ty++) {
+        jobs.push(
+          loadTile(z, tx, ty).then((img) => {
+            ctx.drawImage(img, Math.round(tx * 256 - ox), Math.round(ty * 256 - oy));
+          }),
+        );
+      }
+    }
+    await Promise.all(jobs);
+    return {
+      dataUrl: canvas.toDataURL("image/jpeg", 0.9),
+      size,
+      project: (lg, lt) => [pxX(lg) - ox, pxY(lt) - oy],
+    };
+  } catch {
+    return null;
+  }
+}
+
 export async function exportStudyPdf(o: {
   name: string; lat: number; lng: number; biome: string; totals: AnalysisTotals; areas: Area[]; nearby: Near[]; loc?: { municipio: string; uf: string; regiao: string } | null;
 }) {
@@ -27,11 +91,28 @@ export async function exportStudyPdf(o: {
   const mx = 15, my = 46, mw = 108, mh = 100;
   txt("Mapa do entorno", mx, 44, 11, true);
   txt(`${o.areas.length} ÁREAS DETECTADAS`, mx + mw, 44, 6.5, true, G, "right");
-  doc.setFillColor(243, 236, 214); doc.rect(mx, my, mw, mh, "F");
+
   const cx = mx + mw / 2, cy = my + mh / 2, R = 42; // R mm = 1500 m
-  const k = R / 1500, mLat = 110574, mLng = 111320 * Math.cos((o.lat * Math.PI) / 180);
-  const P = (lng: number, lat: number): [number, number] => [cx + (lng - o.lng) * mLng * k, cy - (lat - o.lat) * mLat * k];
-  doc.setFillColor(250, 246, 232); doc.circle(cx, cy, R, "F");
+  const sat = await fetchSatelliteMap(o.lat, o.lng, 1500);
+
+  let P: Project;
+  if (sat) {
+    // Imagem de satélite real como fundo, cobrindo exatamente o círculo de 1,5 km.
+    doc.addImage(sat.dataUrl, "JPEG", mx, my, mw, mh);
+    P = (lng, lat) => {
+      const [px, py] = sat.project(lng, lat);
+      return [mx + (px / sat.size) * mw, my + (py / sat.size) * mh];
+    };
+  } else {
+    // Fallback esquemático (sem conexão com o serviço de imagens).
+    doc.setFillColor(243, 236, 214); doc.rect(mx, my, mw, mh, "F");
+    const k = R / 1500, mLat = 110574, mLng = 111320 * Math.cos((o.lat * Math.PI) / 180);
+    P = (lng, lat) => [cx + (lng - o.lng) * mLng * k, cy - (lat - o.lat) * mLat * k];
+    doc.setFillColor(250, 246, 232); doc.circle(cx, cy, R, "F");
+  }
+
+  // Áreas delimitadas por cima do fundo (translúcidas quando há satélite).
+  if (sat) doc.setGState(new doc.GState({ opacity: 0.45 }));
   o.areas.forEach((a, i) => {
     if (!a.geom) return;
     doc.setFillColor(110, 170, 110); doc.setDrawColor(40, 100, 50); doc.setLineWidth(0.3);
@@ -49,6 +130,8 @@ export async function exportStudyPdf(o: {
       txt(lab, lx, ly + 0.6, 6, true, DARK, "center");
     }
   });
+  if (sat) doc.setGState(new doc.GState({ opacity: 1 }));
+
   doc.saveGraphicsState(); doc.rect(mx, my, mw, mh, null); doc.clip(); doc.discardPath();
   o.nearby.forEach((a) => {
     const [x, y] = P(a.longitude, a.latitude);
