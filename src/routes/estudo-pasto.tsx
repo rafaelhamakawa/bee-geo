@@ -204,6 +204,30 @@ function StudyPage() {
         <p className="mb-3 text-sm text-muted-foreground">Toque no mapa ou arraste o marcador até o local que deseja estudar.</p>
         {map}
         <p className="mt-2 text-center text-xs text-muted-foreground">{formatCoord(lat, lng)}</p>
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="lat">Latitude</Label>
+            <Input
+              id="lat"
+              type="number"
+              step="any"
+              value={lat}
+              onChange={(e) => setLat(Number(e.target.value))}
+              className="h-12 bg-card"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lng">Longitude</Label>
+            <Input
+              id="lng"
+              type="number"
+              step="any"
+              value={lng}
+              onChange={(e) => setLng(Number(e.target.value))}
+              className="h-12 bg-card"
+            />
+          </div>
+        </div>
         <Button variant="outline" className="mt-3 w-full" onClick={locate}><LocateFixed className="mr-2 h-4 w-4" />Usar minha localização</Button>
         <div className="mt-4 space-y-2">
           <Label>Bioma</Label>
