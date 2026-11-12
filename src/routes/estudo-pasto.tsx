@@ -23,6 +23,7 @@ import {
   type PatchInput,
 } from "@/lib/geoapis";
 import { multiPolygonAreaHa, polygonAreaHa, scaleArea, scanVegetation, type MultiPoly } from "@/lib/vegetation-scan";
+import { parsePlusCode } from "@/lib/pluscode";
 import { Slider } from "@/components/ui/slider";
 import { Maximize2, X } from "lucide-react";
 
@@ -56,6 +57,8 @@ function StudyPage() {
   const [step, setStep] = useState<"local" | "analise">("local");
   const [lat, setLat] = useState(-15.7801);
   const [lng, setLng] = useState(-47.9292);
+  const [plusCode, setPlusCode] = useState("");
+  const [searchingCode, setSearchingCode] = useState(false);
   const [biome, setBiome] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [scanning, setScanning] = useState(false);
