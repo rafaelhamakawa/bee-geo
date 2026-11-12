@@ -21,7 +21,9 @@ import {
   TECHNICAL_DISCLAIMER,
   type PatchInput,
 } from "@/lib/geoapis";
-import { polygonAreaHa, scanVegetation } from "@/lib/vegetation-scan";
+import { multiPolygonAreaHa, polygonAreaHa, scaleArea, scanVegetation, type MultiPoly } from "@/lib/vegetation-scan";
+import { Slider } from "@/components/ui/slider";
+import { Maximize2, X } from "lucide-react";
 
 const ApiaryMap = lazy(() => import("@/components/apiary-map"));
 
@@ -40,6 +42,11 @@ export const Route = createFileRoute("/estudo-pasto")({
   component: StudyPage,
 });
 
+type Row = PatchInput & { id: string; biome: string; base?: MultiPoly; geom?: MultiPoly; scale: number; kind: "dark" | "light" | "manual" };
+const AREA_COLORS = { dark: "#1E7A3C", light: "#7CC94B", manual: "#2F80ED" } as const;
+let rowSeq = 0;
+const newId = () => `a${++rowSeq}`;
+
 type Near = { latitude: number; longitude: number; name?: string | null };
 
 function StudyPage() {
@@ -49,13 +56,36 @@ function StudyPage() {
   const [lat, setLat] = useState(-15.7801);
   const [lng, setLng] = useState(-47.9292);
   const [biome, setBiome] = useState("");
-  const [rows, setRows] = useState<PatchInput[]>([]);
+  const [rows, setRows] = useState<Row[]>([]);
   const [scanning, setScanning] = useState(false);
   const [drawing, setDrawing] = useState(false);
   const [drawPoints, setDrawPoints] = useState<[number, number][]>([]);
   const [nearby, setNearby] = useState<Near[]>([]);
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const sel = rows.find((r) => r.id === selected) ?? null;
+
+  function updateRow(id: string, patch: Partial<Row>) {
+    setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  }
+  function resize(r: Row, scale: number) {
+    if (!r.base) return;
+    const geom = scaleArea(r.base, scale, lat, lng);
+    updateRow(r.id, { scale, geom, area_ha: Number(multiPolygonAreaHa(geom).toFixed(2)) });
+  }
+  function changeBiome(r: Row, b: string) {
+    updateRow(r.id, { biome: b, hive_multiplier: biomeMultiplier(b) });
+  }
+  function removeRow(id: string) {
+    setRows((rs) => rs.filter((r) => r.id !== id).map((r, i) => ({ ...r, patch_number: i + 1 })));
+    setSelected(null); setEditing(false);
+  }
+  const mapAreas = useMemo(
+    () => rows.filter((r) => r.geom).map((r) => ({ id: r.id, geometry: r.geom!, color: AREA_COLORS[r.kind], selected: r.id === selected })),
+    [rows, selected],
+  );
 
   const mult = biomeMultiplier(biome);
   const totals = useMemo(() => computeAnalysis(rows, 0), [rows]);
@@ -83,11 +113,14 @@ function StudyPage() {
     );
     try {
       const r = await scanVegetation(lat, lng);
-      const det: PatchInput[] = [];
-      if (r.darkGreenHa > 0.01)
-        det.push({ patch_number: 1, name: "Vegetação verde escuro (detectada)", vegetation_type: "Formação florestal", land_cover_type: "Formação florestal", area_ha: Number(r.darkGreenHa.toFixed(2)), hive_multiplier: mult, is_approved: true });
-      if (r.lightGreenHa > 0.01)
-        det.push({ patch_number: det.length + 1, name: "Vegetação verde claro (detectada)", vegetation_type: "Formação campestre", land_cover_type: "Formação campestre", area_ha: Number(r.lightGreenHa.toFixed(2)), hive_multiplier: mult, is_approved: true });
+      const det: Row[] = r.areas.map((a, i) => ({
+        id: newId(), kind: a.kind, biome, scale: 1, base: a.geometry, geom: a.geometry,
+        patch_number: i + 1,
+        name: `${a.kind === "dark" ? "Verde escuro" : "Verde claro"} ${i + 1}`,
+        vegetation_type: a.kind === "dark" ? "Formação florestal" : "Formação campestre",
+        land_cover_type: a.kind === "dark" ? "Formação florestal" : "Formação campestre",
+        area_ha: Number(a.area_ha.toFixed(2)), hive_multiplier: mult, is_approved: true,
+      }));
       if (!det.length) toast.error("Nenhuma área verde detectada. Delimite manualmente.");
       setRows(det);
     } catch {
@@ -99,7 +132,8 @@ function StudyPage() {
   function finishPolygon() {
     if (drawPoints.length < 3) { toast.error("Marque ao menos 3 pontos no mapa."); return; }
     const area = polygonAreaHa(drawPoints);
-    setRows([...rows, { patch_number: rows.length + 1, name: `Área delimitada ${rows.length + 1}`, vegetation_type: "Vegetação nativa", land_cover_type: "Vegetação nativa", area_ha: Number(area.toFixed(2)), hive_multiplier: mult, is_approved: true }]);
+    const geom: MultiPoly = [[[...drawPoints, drawPoints[0]!]]];
+    setRows([...rows, { id: newId(), kind: "manual", biome, scale: 1, base: geom, geom, patch_number: rows.length + 1, name: `Área delimitada ${rows.length + 1}`, vegetation_type: "Vegetação nativa", land_cover_type: "Vegetação nativa", area_ha: Number(area.toFixed(2)), hive_multiplier: mult, is_approved: true }]);
     setDrawPoints([]);
     setDrawing(false);
   }
@@ -178,6 +212,8 @@ function StudyPage() {
         drawing={drawing}
         drawPoints={drawPoints}
         onDrawPoint={(x, yy) => setDrawPoints((p) => [...p, [x, yy]])}
+        areas={step === "analise" ? mapAreas : []}
+        onAreaClick={(id) => { setSelected(id); setEditing(false); }}
       />
     </Suspense>
   );
@@ -204,6 +240,38 @@ function StudyPage() {
   return (
     <AppShell title="Estudo de pasto apícola" back="/dashboard">
       {map}
+      {rows.some((r) => r.geom) && !sel ? (
+        <p className="mt-2 text-center text-xs text-muted-foreground">Toque numa área verde do mapa para editar, trocar o bioma ou excluir.</p>
+      ) : null}
+      {sel ? (
+        <div className="mt-3 rounded-2xl border-2 border-primary bg-card p-4 shadow-sm">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <p className="font-bold text-primary">{sel.name}</p>
+              <p className="text-xs text-muted-foreground">{fmtHa(sel.area_ha)} ha · {sel.biome || "Bioma não informado"} · ×{sel.hive_multiplier}</p>
+            </div>
+            <button aria-label="Fechar" onClick={() => { setSelected(null); setEditing(false); }}><X className="h-4 w-4" /></button>
+          </div>
+          {editing && sel.base ? (
+            <div className="mt-4 space-y-2">
+              <Label>Tamanho da área: {Math.round(sel.scale * 100)}%</Label>
+              <Slider min={20} max={300} step={5} value={[Math.round(sel.scale * 100)]} onValueChange={(v) => resize(sel, (v[0] ?? 100) / 100)} />
+              <div className="flex justify-between text-xs text-muted-foreground"><span>Reduzir</span><span>Aumentar</span></div>
+            </div>
+          ) : null}
+          <div className="mt-4 space-y-2">
+            <Label>Bioma desta área</Label>
+            <Select value={sel.biome} onValueChange={(b) => changeBiome(sel, b)}>
+              <SelectTrigger><SelectValue placeholder="Selecione o bioma" /></SelectTrigger>
+              <SelectContent>{BIOMES.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <Button variant={editing ? "default" : "outline"} disabled={!sel.base} onClick={() => setEditing(!editing)}><Maximize2 className="mr-2 h-4 w-4" />Editar tamanho</Button>
+            <Button variant="outline" className="text-destructive" onClick={() => removeRow(sel.id)}><Trash2 className="mr-2 h-4 w-4" />Excluir área</Button>
+          </div>
+        </div>
+      ) : null}
       <div className="mt-3 flex gap-2">
         {drawing ? (
           <>
@@ -222,11 +290,14 @@ function StudyPage() {
       {rows.length ? (
         <div className="mt-4 rounded-2xl bg-card p-4 shadow-sm">
           <h2 className="mb-2 font-bold text-primary">Fragmentos</h2>
-          {rows.map((r, i) => (
-            <div key={i} className="flex items-center justify-between py-1 text-sm">
-              <span className="truncate">{r.name}</span>
+          {rows.map((r) => (
+            <div key={r.id} className={`flex items-center justify-between rounded-lg px-1 py-1 text-sm ${r.id === selected ? "bg-primary/10" : ""}`}>
+              <button className="flex min-w-0 items-center gap-2 text-left" onClick={() => { setSelected(r.id); setEditing(false); }}>
+                <span className="h-3 w-3 shrink-0 rounded-sm" style={{ background: AREA_COLORS[r.kind] }} />
+                <span className="truncate">{r.name}{r.biome ? ` · ${r.biome}` : ""}</span>
+              </button>
               <span className="flex items-center gap-2 text-muted-foreground">{fmtHa(r.area_ha)} ha
-                <button aria-label="Remover" onClick={() => setRows(rows.filter((_, k) => k !== i))}><Trash2 className="h-4 w-4" /></button>
+                <button aria-label="Remover" onClick={() => removeRow(r.id)}><Trash2 className="h-4 w-4" /></button>
               </span>
             </div>
           ))}

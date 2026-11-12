@@ -87,6 +87,24 @@ export type ExtraMarker = {
   title?: string;
 };
 
+export type MapArea = {
+  id: string;
+  geometry: [number, number][][][];
+  color?: string;
+  selected?: boolean;
+};
+
+function areasGeoJSON(areas: MapArea[]): any {
+  return {
+    type: "FeatureCollection",
+    features: areas.map((a) => ({
+      type: "Feature",
+      properties: { id: a.id, color: a.color ?? "#2E9E4F", selected: a.selected ? 1 : 0 },
+      geometry: { type: "MultiPolygon", coordinates: a.geometry },
+    })),
+  };
+}
+
 export default function ApiaryMap({
   latitude,
   longitude,
@@ -100,6 +118,8 @@ export default function ApiaryMap({
   nearby,
   markers,
   onMapClick,
+  areas,
+  onAreaClick,
 }: {
   latitude: number;
   longitude: number;
@@ -113,7 +133,13 @@ export default function ApiaryMap({
   nearby?: NearbyApiary[];
   markers?: ExtraMarker[];
   onMapClick?: (lat: number, lng: number) => void;
+  areas?: MapArea[];
+  onAreaClick?: (id: string) => void;
 }) {
+  const areasRef = useRef<MapArea[]>(areas ?? []);
+  areasRef.current = areas ?? [];
+  const onAreaClickRef = useRef(onAreaClick);
+  onAreaClickRef.current = onAreaClick;
   const container = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markerRef = useRef<maplibregl.Marker | null>(null);
@@ -195,6 +221,26 @@ export default function ApiaryMap({
           });
         }
 
+        map.addSource("areas", { type: "geojson", data: areasGeoJSON(areasRef.current) });
+        map.addLayer({
+          id: "areas-fill",
+          type: "fill",
+          source: "areas",
+          paint: {
+            "fill-color": ["get", "color"],
+            "fill-opacity": ["case", ["==", ["get", "selected"], 1], 0.65, 0.4],
+          },
+        });
+        map.addLayer({
+          id: "areas-line",
+          type: "line",
+          source: "areas",
+          paint: {
+            "line-color": ["case", ["==", ["get", "selected"], 1], "#FFFFFF", ["get", "color"]],
+            "line-width": ["case", ["==", ["get", "selected"], 1], 3, 1.2],
+          },
+        });
+
         map.addSource("draw", {
           type: "geojson",
           data: { type: "FeatureCollection", features: [] },
@@ -243,6 +289,13 @@ export default function ApiaryMap({
         if (drawingRef.current) {
           onDrawPointRef.current?.(e.lngLat.lng, e.lngLat.lat);
           return;
+        }
+        if (onAreaClickRef.current && map.getLayer("areas-fill")) {
+          const hit = map.queryRenderedFeatures(e.point, { layers: ["areas-fill"] })[0];
+          if (hit?.properties?.["id"]) {
+            onAreaClickRef.current(String(hit.properties["id"]));
+            return;
+          }
         }
         if (onMapClickRef.current) {
           onMapClickRef.current(e.lngLat.lat, e.lngLat.lng);
@@ -333,6 +386,17 @@ export default function ApiaryMap({
       extraMarkersRef.current = [];
     };
   }, [markers]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const apply = () => {
+      const src = map.getSource("areas") as maplibregl.GeoJSONSource | undefined;
+      src?.setData(areasGeoJSON(areas ?? []));
+    };
+    apply();
+    map.once("idle", apply);
+  }, [areas]);
 
   useEffect(() => {
     const canvas = mapRef.current?.getCanvas();
