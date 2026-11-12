@@ -39,7 +39,7 @@ export const getFipmelQuote = createServerFn({ method: "GET" }).handler(
     let erro: string | undefined;
     if (!row || Date.now() - Date.parse(row.consultado_em) > MAX_AGE_MS) {
       try {
-        const res = await fetch(SOURCE_URL, { headers: { Accept: "text/html" }, signal: AbortSignal.timeout(12000) });
+        const res = await fetch(SOURCE_URL, { headers: { Accept: "text/html", "User-Agent": "Mozilla/5.0 (compatible; GeoApis/1.0)" }, signal: AbortSignal.timeout(12000) });
         if (!res.ok) throw new Error(`FIPMEL HTTP ${res.status}`);
         const q = parseQuote(await res.text());
         const fresh = { id: 1, ...q, consultado_em: new Date().toISOString() };
